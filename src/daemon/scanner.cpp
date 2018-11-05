@@ -5,7 +5,9 @@ int scanDev(std::vector<Device*>& populate) {
   int tempfd;
   struct dirent* subject;
   unsigned int cap;
+  bool permden;
   char tempname[256];
+  permden=true;
   scanDir=opendir(DEVICE_DIR);
   if (scanDir==NULL) {
     imLogE("error while trying to scan devices: %s",strerror(errno));
@@ -19,6 +21,9 @@ int scanDev(std::vector<Device*>& populate) {
     if (strstr(subject->d_name,"event")!=subject->d_name) continue;
     // check if weird device
     tempfd=open((S(DEVICE_DIR)+S("/")+S(subject->d_name)).c_str(),O_RDONLY);
+    if (errno!=EACCES) {
+      permden=false;
+    }
     if (tempfd<0) {
       imLogW("couldn't open %s: %s\n",subject->d_name,strerror(errno));
       continue;
@@ -51,5 +56,6 @@ int scanDev(std::vector<Device*>& populate) {
     imLogD("device: %s\n",subject->d_name);
     populate.push_back(new Device(S(DEVICE_DIR)+S("/")+S(subject->d_name)));
   }
-  return 0;
+  if (permden) return -2;
+  return populate.size();
 }
