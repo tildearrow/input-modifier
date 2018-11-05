@@ -37,7 +37,7 @@ int imLogE(const char* format, ...) {
   va_list va;
   int ret;
   if (logLevel<LOGLEVEL_ERROR) return 0;
-  printf("\x1b[1;33m[ERROR]\x1b[m ");
+  printf("\x1b[1;31m[ERROR]\x1b[m ");
   va_start(va,format);
   ret=vprintf(format,va);
   va_end(va);
