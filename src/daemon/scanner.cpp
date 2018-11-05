@@ -54,8 +54,10 @@ int scanDev(std::vector<Device*>& populate) {
     }
     close(tempfd);
     imLogD("device: %s\n",subject->d_name);
+    permden=false;
     populate.push_back(new Device(S(DEVICE_DIR)+S("/")+S(subject->d_name)));
   }
+  if (populate.empty()) return 0;
   if (permden) return -2;
   return populate.size();
 }

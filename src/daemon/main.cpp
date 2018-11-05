@@ -20,6 +20,30 @@ void stopHandler(int data) {
 
 int main(int argc, char** argv) {
   struct sigaction sintH, stermH, ststpH;
+  int tempuifd;
+  // check permissions of uinput
+  tempuifd=open("/dev/uinput",O_RDWR);
+  if (tempuifd<0) {
+    imLogW("can't access /dev/uinput: %s\n",strerror(errno));
+    imLogW("fixing this problem for you...\n");
+    if (system("./imod-uinput-helper")!=0) {
+      imLogE("error while trying to fix this problem for you...\n");
+    }
+    tempuifd=open("/dev/uinput",O_RDWR);
+    if (tempuifd<0) {
+      imLogE("still can't access /dev/uinput: %s\n",strerror(errno));
+      imLogE("try adding yourself to the 'input' group:\n");
+      if (getenv("USER")==NULL) {
+        imLogE("...wait, what? who are you?\n");
+        imLogE("anyway, here is the command:\n");
+        imLogE("sudo usermod -a -G input <USERNAME>\n");
+        return 1;
+      }
+      imLogE("sudo usermod -a -G input %s\n",getenv("USER"));
+      return 1;
+    }
+  }
+  close(tempuifd);
   // scan devices
   if (scanDev(dev)==-2) {
     imLogE("there are devices but I can't open any.\n");

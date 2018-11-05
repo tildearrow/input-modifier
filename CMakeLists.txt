@@ -7,4 +7,8 @@ src/daemon/scanner.cpp
 src/daemon/device.cpp
 src/daemon/main.cpp)
 
+add_executable(imod-uinput-helper
+src/helper/log.cpp
+src/helper/main.cpp)
+
 target_link_libraries(imodd pthread)
