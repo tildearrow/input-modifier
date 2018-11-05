@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include <string>
 #include <bitset>
 #include <vector>
@@ -36,8 +37,25 @@ int imLogE(const char* format, ...);
 // 2: allow super weird devices
 #define allowWeird 0
 
-class Action {
+enum ActionType {
+  actKey=0,
+  actTurbo,
+  actRel,
+  actRelConst,
+  actAbs,
+  actExecute,
+  actSwitchMap,
+  actShiftMap
+};
 
+struct Action {
+  ActionType type;
+  int code;
+  int value;
+  struct timespec timeOn, timeOff;
+  string command;
+  std::vector<string> args;
+  std::vector<string> env;
 };
 
 struct eventBind {
