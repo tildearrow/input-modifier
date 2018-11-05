@@ -3,7 +3,7 @@
 std::vector<Device*> dev;
 
 enum {
-  doNothing,
+  doNothing=0,
   doQuit,
   doSuspend,
 } whatToDo;
