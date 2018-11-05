@@ -3,6 +3,7 @@
 Device::Device():
   fd(-1),
   name(""),
+  phys(""),
   path(""),
   uinputfd(-1),
   inThread(-1),
@@ -12,6 +13,7 @@ Device::Device():
 Device::Device(string p):
   fd(-1),
   name(""),
+  phys(""),
   path(p),
   uinputfd(-1),
   inThread(-1),
