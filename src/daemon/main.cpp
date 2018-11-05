@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
   if (tempuifd<0) {
     imLogW("can't access /dev/uinput: %s\n",strerror(errno));
     imLogW("fixing this problem for you...\n");
+    if (system(_PREFIX "/bin/imod-uinput-helper")!=0) // or
     if (system("./imod-uinput-helper")!=0) {
       imLogE("error while trying to fix this problem for you...\n");
     }

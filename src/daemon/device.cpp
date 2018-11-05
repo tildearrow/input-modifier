@@ -126,6 +126,7 @@ bool Device::activate() {
   if (uinputfd<0) {
     imLogW("couldn't open /dev/uinput for device %s: %s\n",path.c_str(),strerror(errno));
     imLogW("fixing this problem...\n");
+    if (system(_PREFIX "/bin/imod-uinput-helper")!=0) // or
     if (system("./imod-uinput-helper")!=0) {
       imLogE("error while trying to fix this problem for you...\n");
       return false;

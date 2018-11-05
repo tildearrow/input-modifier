@@ -12,3 +12,8 @@ src/helper/log.cpp
 src/helper/main.cpp)
 
 target_link_libraries(imodd pthread)
+
+target_compile_definitions(imodd PUBLIC _PREFIX="${CMAKE_INSTALL_PREFIX}")
+
+install(TARGETS imodd RUNTIME DESTINATION bin)
+install(TARGETS imod-uinput-helper RUNTIME DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE SETUID)
