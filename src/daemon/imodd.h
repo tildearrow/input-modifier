@@ -96,6 +96,7 @@ class Device {
   int fd;
   string name, phys, path;
   struct input_id info;
+  struct input_absinfo absinfo[ABS_CNT];
   int uinputfd;
   struct uinput_user_dev uiconfig;
   bool threadRunning;

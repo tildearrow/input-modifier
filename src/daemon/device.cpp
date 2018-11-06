@@ -104,6 +104,12 @@ bool Device::init() {
       repcaps[i]=!!(cap[i/8]&(1<<(i&7)));
     }
   }
+  // absolute properties
+  if (evcaps[EV_ABS]) for (int i=0; i<ABS_CNT; i++) {
+    if (abscaps[i]) {
+      ioctl(fd,EVIOCGABS(i),&absinfo[i]);
+    }
+  }
   imLogD("%s: %s\n",path.c_str(),name.c_str());
   imLogD("  - phys: %s\n",phys.c_str());
   imLogD("  - vendor/product: %.4x:%.4x\n",info.vendor,info.product);
@@ -165,6 +171,13 @@ bool Device::activate() {
   if (evcaps[EV_SW]) for (int i=0; i<SW_CNT; i++) if (swcaps[i]) ioctl(uinputfd,UI_SET_SWBIT,i);
   if (evcaps[EV_LED]) for (int i=0; i<LED_CNT; i++) if (ledcaps[i]) ioctl(uinputfd,UI_SET_LEDBIT,i);
   if (evcaps[EV_SND]) for (int i=0; i<SND_CNT; i++) if (sndcaps[i]) ioctl(uinputfd,UI_SET_SNDBIT,i);
+
+  for (int i=0; i<ABS_CNT; i++) {
+    uiconfig.absmax[i]=absinfo[i].maximum;
+    uiconfig.absmin[i]=absinfo[i].minimum;
+    uiconfig.absfuzz[i]=absinfo[i].fuzz;
+    uiconfig.absflat[i]=absinfo[i].flat;
+  }
 
   write(uinputfd,&uiconfig,sizeof(struct uinput_user_dev));
   ioctl(uinputfd,UI_DEV_CREATE);
