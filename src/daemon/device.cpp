@@ -173,7 +173,26 @@ bool Device::activate() {
     return false;
   }
   active=true;
+  imLogI("device %s activated.\n",name.c_str());
   return true;
+}
+
+bool Device::deactivate() {
+  if (active) {
+    imLogD("killing.\n");
+    pthread_cancel(inThread);
+    pthread_join(inThread,NULL);
+    imLogD("%s: ungrabbing.\n",name.c_str());
+    if (ioctl(fd,EVIOCGRAB,0)<0) {
+      imLogE("%s: couldn't ungrab: %s\n",name.c_str(),strerror(errno));
+    }
+    close(uinputfd);
+    uinputfd=-1;
+    imLogI("%s: going down.\n",name.c_str());
+    threadRunning=false;
+    return true;
+  }
+  return false;
 }
 
 void Device::run() {
@@ -187,12 +206,23 @@ void Device::run() {
   while (1) {
     count=read(fd,&event,sizeof(struct input_event));
     if (count<0) {
-      imLogW("read error: %s\n",strerror(errno));
-      break;
+      if (errno==EINTR) { // we got a signal
+        break;
+      } else {
+        imLogW("read error: %s\n",strerror(errno));
+        break;
+      }
     } 
     imLogD("%s: %d %d %d\n",name.c_str(),event.type,event.code,event.value);
     wire=event;
     write(uinputfd,&wire,sizeof(struct input_event));
   }
+  imLogD("%s: ungrabbing.\n",name.c_str());
+  if (ioctl(fd,EVIOCGRAB,0)<0) {
+    imLogE("%s: couldn't ungrab: %s\n",name.c_str(),strerror(errno));
+  }
+  close(uinputfd);
+  uinputfd=-1;
+  imLogI("%s: going down.\n",name.c_str());
   threadRunning=false;
 }

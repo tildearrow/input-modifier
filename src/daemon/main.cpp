@@ -75,8 +75,21 @@ int main(int argc, char** argv) {
   imLogI("done! running.\n");
   while (1) {
     pause();
-    if (whatToDo==doQuit) break;
-    if (whatToDo==doSuspend) raise(SIGSTOP);
+    if (whatToDo==doQuit) {
+      for (auto i: dev) {
+        i->deactivate();
+      }
+      break;
+    }
+    if (whatToDo==doSuspend) {
+      for (auto i: dev) {
+        i->deactivate();
+      }
+      raise(SIGSTOP);
+      for (auto i: dev) {
+        i->activate();
+      }
+    }
     whatToDo=doNothing;
   }
   imLogI("exiting.\n");

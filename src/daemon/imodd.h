@@ -89,6 +89,7 @@ class Device {
   public:
     void run();
     bool activate();
+    bool deactivate();
     bool init();
     Device(string p);
     Device();
