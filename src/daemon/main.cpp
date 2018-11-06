@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
     if (system(_PREFIX "/bin/imod-uinput-helper")!=0) // or
     if (system("./imod-uinput-helper")!=0) {
       imLogE("error while trying to fix this problem for you...\n");
+      return 1;
     }
     tempuifd=open("/dev/uinput",O_RDWR);
     if (tempuifd<0) {
