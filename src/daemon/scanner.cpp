@@ -47,7 +47,8 @@ int scanDev(std::vector<Device*>& populate) {
        }
        if (strcmp(tempname,"Power Button")==0 ||
            strcmp(tempname,"Sleep Button")==0 ||
-           strcmp(tempname,"Video Bus")==0) {
+           strcmp(tempname,"Video Bus")==0 ||
+           strcmp(tempname,"Speakup")==0) {
          close(tempfd);
          continue;
        }
