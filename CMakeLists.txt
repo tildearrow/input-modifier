@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_executable(imodd 
 src/daemon/log.cpp
+src/daemon/time.cpp
 src/daemon/scanner.cpp
 src/daemon/device.cpp
 src/daemon/main.cpp)

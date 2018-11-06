@@ -5,6 +5,7 @@ Device::Device():
   name(""),
   phys(""),
   path(""),
+  curmap(NULL),
   uinputfd(-1),
   inThread(-1),
   active(false) {
@@ -15,6 +16,7 @@ Device::Device(string p):
   name(""),
   phys(""),
   path(p),
+  curmap(NULL),
   uinputfd(-1),
   inThread(-1),
   active(false) {
@@ -214,8 +216,53 @@ void Device::run() {
       }
     } 
     imLogD("%s: %d %d %d\n",name.c_str(),event.type,event.code,event.value);
-    wire=event;
-    write(uinputfd,&wire,sizeof(struct input_event));
+    // EVENT REWIRING BEGIN //
+    if (curmap==NULL) {
+      wire=event;
+      write(uinputfd,&wire,sizeof(struct input_event));
+    } else {
+      switch (event.type) {
+        case EV_KEY:
+          if (curmap->keybinds[event.code].doModify) {
+            for (auto i: curmap->keybinds[event.code].actions) {
+              switch (i.type) {
+                case actKey:
+                  wire.type=EV_KEY;
+                  wire.code=i.code;
+                  wire.value=event.value;
+                  write(uinputfd,&wire,sizeof(struct input_event));
+                  break;
+                default:
+                  imLogW("unknown/unimplemented action %d...\n",i.type);
+                  break;
+              }
+            }
+          } else {
+            wire=event;
+            write(uinputfd,&wire,sizeof(struct input_event));
+          }
+          break;
+        case EV_REL:
+          if (curmap->relbinds[event.code].doModify) {
+
+          } else {
+            wire=event;
+            write(uinputfd,&wire,sizeof(struct input_event));
+          }
+          break;
+        case EV_SW:
+          if (curmap->swbinds[event.code].doModify) {
+
+          } else {
+            wire=event;
+            write(uinputfd,&wire,sizeof(struct input_event));
+          }
+          break;
+        default:
+          wire=event;
+      }
+    }
+    // EVENT REWIRING END //
   }
   imLogD("%s: ungrabbing.\n",name.c_str());
   if (ioctl(fd,EVIOCGRAB,0)<0) {

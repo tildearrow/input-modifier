@@ -35,6 +35,15 @@ int imLogI(const char* format, ...);
 int imLogW(const char* format, ...);
 int imLogE(const char* format, ...);
 
+bool operator ==(const struct timespec& l, const struct timespec& r);
+bool operator >(const struct timespec& l, const struct timespec& r);
+bool operator <(const struct timespec& l, const struct timespec& r);
+struct timespec operator +(const struct timespec& l, const struct timespec& r);
+struct timespec operator -(const struct timespec& l, const struct timespec& r);
+struct timespec operator +(const struct timespec& l, const long& r);
+struct timespec operator -(const struct timespec& l, const long& r);
+struct timespec mkts(time_t sec, long nsec);
+
 // 0: no weird devices
 // 1: allow weird devices
 // 2: allow super weird devices
@@ -63,7 +72,24 @@ struct Action {
 
 struct eventBind {
   bool doModify;
+  bool advanced;
+  // actions becomes pressActions if advanced
   std::vector<Action> actions;
+  std::vector<Action> relactions;
+  eventBind():
+    doModify(false), advanced(false) {}
+};
+
+struct bindSet {
+  eventBind keybinds[KEY_CNT];
+  eventBind relbinds[REL_CNT];
+  eventBind swbinds[SW_CNT];
+};
+
+struct activeTurbo {
+  bool phase;
+  struct timespec next;
+  int code;
 };
 
 class Device {
@@ -86,7 +112,11 @@ class Device {
   std::bitset<REP_CNT> repcaps;
   std::bitset<SND_CNT> sndcaps;
 
-  eventBind keybinds[KEY_CNT];
+  std::vector<activeTurbo> runTurbo;
+
+  std::vector<bindSet*> mappings;
+  bindSet* curmap;
+  struct timespec timeout;
   public:
     void run();
     bool activate();
