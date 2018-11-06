@@ -5,10 +5,10 @@ Device::Device():
   name(""),
   phys(""),
   path(""),
-  curmap(NULL),
   uinputfd(-1),
   inThread(-1),
-  active(false) {
+  active(false),
+  curmap(NULL) {
 }
 
 Device::Device(string p):
@@ -16,10 +16,10 @@ Device::Device(string p):
   name(""),
   phys(""),
   path(p),
-  curmap(NULL),
   uinputfd(-1),
   inThread(-1),
-  active(false) {
+  active(false),
+  curmap(NULL) {
 }
 
 bool Device::init() {
