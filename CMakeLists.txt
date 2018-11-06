@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(input-modifier)
 
+set(CMAKE_CXX_STANDARD 11)
+
 add_executable(imodd 
 src/daemon/log.cpp
 src/daemon/scanner.cpp
