@@ -47,9 +47,10 @@ struct timespec operator -(const struct timespec& l, const struct timespec& r) {
   struct timespec ret;
   ret=l;
   ret.tv_sec-=r.tv_sec;
-  if ((ret.tv_nsec-=r.tv_nsec)<0) {
-    ret.tv_sec-=1-ret.tv_nsec/1000000000;
-    ret.tv_nsec+=(1+(ret.tv_nsec/1000000000))*1000000000;
+  ret.tv_nsec-=r.tv_nsec;
+  while (ret.tv_nsec<0) {
+    ret.tv_nsec+=1000000000;
+    ret.tv_sec--;
   }
   return ret;
 }

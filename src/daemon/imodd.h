@@ -70,6 +70,11 @@ struct Action {
   string command;
   std::vector<string> args;
   std::vector<string> env;
+  Action(ActionType t, int c): type(t), code(c) {}
+  Action(ActionType t, int c, struct timespec on, struct timespec off): type(t), code(c), timeOn(on), timeOff(off) {}
+  Action(ActionType t, int c, int v): type(t), code(c), value(v) {}
+  Action(ActionType t, int c, int v, struct timespec ti): type(t), code(c), value(v), timeOn(ti) {}
+  Action(ActionType t, string prog, std::vector<string>& a, std::vector<string>& e): type(t), command(prog), args(a), env(e) {}
 };
 
 struct eventBind {

@@ -128,6 +128,11 @@ bool Device::init() {
   if (mappings.empty()) {
     mappings.push_back(new bindSet);
     curmap=mappings[0];
+    // enable to test.
+    /*
+    curmap->keybinds[KEY_A].doModify=true;
+    curmap->keybinds[KEY_A].actions.push_back(Action(actTurbo,KEY_H,mkts(0,40000000),mkts(0,40000000)));
+    */
   }
   return true;
 }
@@ -231,31 +236,39 @@ void Device::run() {
   if (ioctl(fd,EVIOCGRAB,1)<0) {
     imLogE("%s: couldn't grab: %s\n",name.c_str(),strerror(errno));
   }
-  FD_ZERO(&devfd);
-  FD_SET(fd,&devfd);
+  ctime=mkts(0,0);
   while (1) {
-    for (auto i: runTurbo) {
-      if (smallest==NULL) {
-        smallest=&i;
-        continue;
+    if (!runTurbo.empty()) {
+      for (auto i: runTurbo) {
+        if (smallest==NULL) {
+          smallest=&i;
+          continue;
+        }
+        if (smallest->next<i.next) {
+          smallest=&i;
+        }
       }
-      if (smallest->next<i.next) {
-        smallest=&i;
+      ctime=curTime(CLOCK_MONOTONIC);
+      ctime=smallest->next-curTime(CLOCK_MONOTONIC);
+      if (ctime<mkts(0,0)) {
+        ctime=mkts(0,0);
       }
     }
-    ctime=smallest->next-curTime(CLOCK_MONOTONIC);
-    if (ctime<mkts(0,0)) ctime=mkts(0,0);
-    amount=pselect(1,&devfd,NULL,NULL,(runTurbo.empty())?(NULL):(&ctime),NULL);
+    FD_ZERO(&devfd);
+    FD_SET(fd,&devfd);
+    amount=pselect(fd+1,&devfd,NULL,NULL,(runTurbo.empty())?(NULL):(&ctime),NULL);
     if (amount==0) { 
       // do turbo
-      for (auto i: runTurbo) {
+      for (activeTurbo& i: runTurbo) {
         i.phase=!i.phase;
-        i.next=curTime(CLOCK_MONOTONIC)+((i.phase)?(i.timeOff):(i.timeOn));
+        i.next=i.next+((i.phase)?(i.timeOn):(i.timeOff));
+        wire.type=EV_KEY;
         wire.code=i.code;
         wire.value=i.phase;
         write(uinputfd,&wire,sizeof(struct input_event));
         write(uinputfd,&syncev,sizeof(struct input_event));
       }
+      smallest=NULL;
       continue;
     }
     count=read(fd,&event,sizeof(struct input_event));
@@ -286,16 +299,20 @@ void Device::run() {
                   write(uinputfd,&syncev,sizeof(struct input_event));
                   break;
                 case actTurbo:
-                  if (event.value==0) {
+                  if (event.value==1) {
+                    imLogD("running turbo\n");
                     runTurbo.push_back(activeTurbo(i.timeOn,i.timeOff,curTime(CLOCK_MONOTONIC)+i.timeOn,i.code));
+                    wire.type=EV_KEY;
                     wire.code=i.code;
-                    wire.value=event.value;
+                    wire.value=1;
                     write(uinputfd,&wire,sizeof(struct input_event));
                     write(uinputfd,&syncev,sizeof(struct input_event));
                   } else if (event.value==0) {
+                    imLogD("disabling turbo\n");
                     for (std::vector<activeTurbo>::iterator j=runTurbo.begin(); j!=runTurbo.end(); j++) {
                       if (j->code==i.code) {
                         if (j->phase) {
+                          wire.type=EV_KEY;
                           wire.code=j->code;
                           wire.value=0;
                           write(uinputfd,&wire,sizeof(struct input_event));
