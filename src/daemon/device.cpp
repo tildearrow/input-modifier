@@ -123,6 +123,12 @@ bool Device::init() {
   if (evcaps[EV_LED]) imLogD("    - ledcaps: %s\n",ledcaps.to_string().c_str());
   if (evcaps[EV_SND]) imLogD("    - sndcaps: %s\n",sndcaps.to_string().c_str());
   if (evcaps[EV_REP]) imLogD("    - repcaps: %s\n",repcaps.to_string().c_str());
+
+  // initialize map if needed
+  if (mappings.empty()) {
+    mappings.push_back(new bindSet);
+    curmap=mappings[0];
+  }
   return true;
 }
 
@@ -211,14 +217,47 @@ bool Device::deactivate() {
 }
 
 void Device::run() {
+  struct timespec ctime;
   struct input_event event;
+  struct input_event syncev;
   struct input_event wire;
-  int count;
+  activeTurbo* smallest;
+  fd_set devfd;
+  int amount, count;
   threadRunning=true;
+  syncev.type=EV_SYN;
+  syncev.code=0;
+  syncev.value=0;
   if (ioctl(fd,EVIOCGRAB,1)<0) {
     imLogE("%s: couldn't grab: %s\n",name.c_str(),strerror(errno));
   }
+  FD_ZERO(&devfd);
+  FD_SET(fd,&devfd);
   while (1) {
+    for (auto i: runTurbo) {
+      if (smallest==NULL) {
+        smallest=&i;
+        continue;
+      }
+      if (smallest->next<i.next) {
+        smallest=&i;
+      }
+    }
+    ctime=smallest->next-curTime(CLOCK_MONOTONIC);
+    if (ctime<mkts(0,0)) ctime=mkts(0,0);
+    amount=pselect(1,&devfd,NULL,NULL,(runTurbo.empty())?(NULL):(&ctime),NULL);
+    if (amount==0) { 
+      // do turbo
+      for (auto i: runTurbo) {
+        i.phase=!i.phase;
+        i.next=curTime(CLOCK_MONOTONIC)+((i.phase)?(i.timeOff):(i.timeOn));
+        wire.code=i.code;
+        wire.value=i.phase;
+        write(uinputfd,&wire,sizeof(struct input_event));
+        write(uinputfd,&syncev,sizeof(struct input_event));
+      }
+      continue;
+    }
     count=read(fd,&event,sizeof(struct input_event));
     if (count<0) {
       if (errno==EINTR) { // we got a signal
@@ -228,7 +267,7 @@ void Device::run() {
         break;
       }
     } 
-    imLogD("%s: %d %d %d\n",name.c_str(),event.type,event.code,event.value);
+    imLogD("%s: %d %d %d\n",path.c_str(),event.type,event.code,event.value);
     // EVENT REWIRING BEGIN //
     if (curmap==NULL) {
       wire=event;
@@ -244,6 +283,29 @@ void Device::run() {
                   wire.code=i.code;
                   wire.value=event.value;
                   write(uinputfd,&wire,sizeof(struct input_event));
+                  write(uinputfd,&syncev,sizeof(struct input_event));
+                  break;
+                case actTurbo:
+                  if (event.value==0) {
+                    runTurbo.push_back(activeTurbo(i.timeOn,i.timeOff,curTime(CLOCK_MONOTONIC)+i.timeOn,i.code));
+                    wire.code=i.code;
+                    wire.value=event.value;
+                    write(uinputfd,&wire,sizeof(struct input_event));
+                    write(uinputfd,&syncev,sizeof(struct input_event));
+                  } else if (event.value==0) {
+                    for (std::vector<activeTurbo>::iterator j=runTurbo.begin(); j!=runTurbo.end(); j++) {
+                      if (j->code==i.code) {
+                        if (j->phase) {
+                          wire.code=j->code;
+                          wire.value=0;
+                          write(uinputfd,&wire,sizeof(struct input_event));
+                          write(uinputfd,&syncev,sizeof(struct input_event));
+                        }
+                        runTurbo.erase(j);
+                        break;
+                      }
+                    }
+                  }
                   break;
                 default:
                   imLogW("unknown/unimplemented action %d...\n",i.type);
@@ -273,6 +335,7 @@ void Device::run() {
           break;
         default:
           wire=event;
+          write(uinputfd,&wire,sizeof(struct input_event));
       }
     }
     // EVENT REWIRING END //

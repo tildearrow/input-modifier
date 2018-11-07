@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/select.h>
 #include <grp.h>
 #include <signal.h>
 #include <dirent.h>
@@ -43,6 +44,7 @@ struct timespec operator -(const struct timespec& l, const struct timespec& r);
 struct timespec operator +(const struct timespec& l, const long& r);
 struct timespec operator -(const struct timespec& l, const long& r);
 struct timespec mkts(time_t sec, long nsec);
+struct timespec curTime(clockid_t clockSource);
 
 // 0: no weird devices
 // 1: allow weird devices
@@ -88,8 +90,11 @@ struct bindSet {
 
 struct activeTurbo {
   bool phase;
+  struct timespec timeOn;
+  struct timespec timeOff;
   struct timespec next;
   int code;
+  activeTurbo(struct timespec on, struct timespec off, struct timespec n, int c): phase(true), timeOn(on), timeOff(off), next(n), code(c) {}
 };
 
 class Device {
