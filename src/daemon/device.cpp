@@ -324,6 +324,32 @@ void Device::run() {
                     }
                   }
                   break;
+                case actRel:
+		  if (event.value==1) {
+                    wire.type=EV_REL;
+                    wire.code=i.code;
+                    wire.value=i.value;
+                    write(uinputfd,&wire,sizeof(struct input_event));
+                    write(uinputfd,&syncev,sizeof(struct input_event));
+		  }
+                  break;
+                case actRelConst: // TODO
+		  break;
+                case actAbs:
+		  if (event.value==1) {
+                    wire.type=EV_ABS;
+                    wire.code=i.code;
+                    wire.value=i.value;
+                    write(uinputfd,&wire,sizeof(struct input_event));
+                    write(uinputfd,&syncev,sizeof(struct input_event));
+		  }
+                  break;
+                case actExecute: // TODO
+		  break;
+                case actSwitchMap: // TODO
+		  break;
+                case actShiftMap: // TODO
+		  break;
                 default:
                   imLogW("unknown/unimplemented action %d...\n",i.type);
                   break;
