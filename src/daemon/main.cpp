@@ -18,8 +18,20 @@ void stopHandler(int data) {
   whatToDo=doSuspend;
 }
 
+void childHandler(int data) {
+  int childStatus;
+  pid_t pid;
+  while (1) {
+    pid=waitpid(-1,&childStatus,WNOHANG|__WALL);
+    if (pid<=0) return;
+    if (childStatus!=0) {
+      imLogI("last program exited with code %d\n",childStatus);
+    }
+  }
+}
+
 int main(int argc, char** argv) {
-  struct sigaction sintH, stermH, ststpH;
+  struct sigaction sintH, stermH, ststpH, chldH;
   int tempuifd;
   // check permissions of uinput
   tempuifd=open("/dev/uinput",O_RDWR);
@@ -66,6 +78,8 @@ int main(int argc, char** argv) {
   sigaction(SIGTERM,&stermH,NULL);
   ststpH.sa_handler=stopHandler;
   sigaction(SIGTSTP,&ststpH,NULL);
+  chldH.sa_handler=childHandler;
+  sigaction(SIGCHLD,&chldH,NULL);
   // initialize devices (and input threads)
   imLogI("initializing devices...\n");
   for (auto i: dev) {

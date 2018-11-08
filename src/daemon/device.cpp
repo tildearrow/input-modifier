@@ -131,7 +131,6 @@ bool Device::init() {
     // enable to test.
     /*
     curmap->keybinds[KEY_A].doModify=true;
-    curmap->keybinds[KEY_A].actions.push_back(Action(actTurbo,KEY_H,mkts(0,40000000),mkts(0,40000000)));
     */
   }
   return true;
@@ -226,6 +225,7 @@ void Device::run() {
   struct input_event event;
   struct input_event syncev;
   struct input_event wire;
+  struct sigaction chldH;
   activeTurbo* smallest;
   fd_set devfd;
   int amount, count;
@@ -257,6 +257,10 @@ void Device::run() {
     FD_ZERO(&devfd);
     FD_SET(fd,&devfd);
     amount=pselect(fd+1,&devfd,NULL,NULL,(runTurbo.empty())?(NULL):(&ctime),NULL);
+    if (amount==-1) {
+      if (errno==EINTR) continue;
+      imLogW("%s: pselect: %s\n",strerror(errno));
+    }
     if (amount==0) { 
       // do turbo
       for (activeTurbo& i: runTurbo) {
@@ -356,6 +360,8 @@ void Device::run() {
                   }
                   portedArgs[i.args.size()+1]=NULL;
                   if (event.value==1) {
+                    chldH.sa_handler=childHandler;
+                    sigaction(SIGCHLD,&chldH,NULL);
                     if (fork()==0) {
                       execv(i.command.c_str(),portedArgs);
                       imLogW("can't execute: %s\n",strerror(errno));

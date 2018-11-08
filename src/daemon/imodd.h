@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/select.h>
+#include <sys/wait.h>
 #include <grp.h>
 #include <signal.h>
 #include <dirent.h>
@@ -45,6 +46,8 @@ struct timespec operator +(const struct timespec& l, const long& r);
 struct timespec operator -(const struct timespec& l, const long& r);
 struct timespec mkts(time_t sec, long nsec);
 struct timespec curTime(clockid_t clockSource);
+
+void childHandler(int data);
 
 // 0: no weird devices
 // 1: allow weird devices
