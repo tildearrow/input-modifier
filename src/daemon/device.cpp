@@ -325,31 +325,52 @@ void Device::run() {
                   }
                   break;
                 case actRel:
-		  if (event.value==1) {
+                  if (event.value==1) {
                     wire.type=EV_REL;
                     wire.code=i.code;
                     wire.value=i.value;
                     write(uinputfd,&wire,sizeof(struct input_event));
                     write(uinputfd,&syncev,sizeof(struct input_event));
-		  }
+                  }
                   break;
                 case actRelConst: // TODO
-		  break;
+                  break;
                 case actAbs:
-		  if (event.value==1) {
+                  if (event.value==1) {
                     wire.type=EV_ABS;
                     wire.code=i.code;
                     wire.value=i.value;
                     write(uinputfd,&wire,sizeof(struct input_event));
                     write(uinputfd,&syncev,sizeof(struct input_event));
-		  }
+                  }
                   break;
-                case actExecute: // TODO
-		  break;
+                case actExecute: // TODO: support for environment
+                  char** portedArgs;
+                  //char** portedEnv;
+                  portedArgs=new char*[i.args.size()+2];
+                  portedArgs[0]=new char[i.command.size()+1];
+                  strcpy(portedArgs[0],i.command.c_str());
+                  for (size_t j=0; j<i.args.size(); j++) {
+                    portedArgs[j+1]=new char[i.args[j].size()+1];
+                    strcpy(portedArgs[j+1],i.args[j].c_str());
+                  }
+                  portedArgs[i.args.size()+1]=NULL;
+                  if (event.value==1) {
+                    if (fork()==0) {
+                      execv(i.command.c_str(),portedArgs);
+                      imLogW("can't execute: %s\n",strerror(errno));
+                      exit(1);
+                    }
+                  }
+                  for (size_t j=0; j<i.args.size()+2; j++) {
+                    delete[] portedArgs[j];
+                  }
+                  delete[] portedArgs;
+                  break;
                 case actSwitchMap: // TODO
-		  break;
+                  break;
                 case actShiftMap: // TODO
-		  break;
+                  break;
                 default:
                   imLogW("unknown/unimplemented action %d...\n",i.type);
                   break;
