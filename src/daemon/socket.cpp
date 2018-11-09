@@ -44,8 +44,18 @@ void* sockThread(void* sock) {
 
 void* clientThread(void* cli) {
   SocketInterface::Connection* client=(SocketInterface::Connection*)cli;
+  char* buffer;
+  int length;
   imLogD("this is the client thread.\n");
+  buffer=new char[16384];
   write(client->fd,"hello!\n",strlen("hello!\n"));
+  while (1) {
+    if ((length=read(client->fd,buffer,16384))<=0) break;
+    imLogD("i have read\n");
+    if (write(client->fd,buffer,length)<0) {
+      imLogW("write error %d\n",strerror(errno));
+    }
+  }
   close(client->fd);
   imLogD("my job is done.\n");
   return NULL;
