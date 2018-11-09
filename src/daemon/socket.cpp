@@ -15,9 +15,9 @@ bool SocketInterface::init() {
     imLogE("couldn't create socket: %s\n",strerror(errno));
     return false;
   }
-  while (bind(fd,(const struct sockaddr*)&addr,sizeof(struct sockaddr))<0) {
+  while (bind(fd,(const struct sockaddr*)&addr,strlen(addr.path)+sizeof(sa_family_t)+1)<0) {
     berrno=errno;
-    if (connect(fd,(const struct sockaddr*)&addr,sizeof(struct sockaddr))<0) {
+    if (connect(fd,(const struct sockaddr*)&addr,strlen(addr.path)+sizeof(sa_family_t)+1)<0) {
       imLogI("removing remnants of dead daemon...\n");
       if (unlink(addr.path)<0) {
         imLogE("hey, I can't! %s!\n",strerror(errno));
