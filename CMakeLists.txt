@@ -8,6 +8,7 @@ src/daemon/log.cpp
 src/daemon/time.cpp
 src/daemon/scanner.cpp
 src/daemon/device.cpp
+src/daemon/socket.cpp
 src/daemon/main.cpp)
 
 add_executable(imod-uinput-helper

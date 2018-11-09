@@ -10,8 +10,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <grp.h>
 #include <signal.h>
@@ -138,6 +139,32 @@ class Device {
     bool init();
     Device(string p);
     Device();
+};
+
+class SocketInterface {
+  struct {
+    sa_family_t family;
+    char path[PATH_MAX];
+  } addr;
+  int fd;
+  public:
+    struct Connection {
+      struct {
+        sa_family_t family;
+        char path[PATH_MAX];
+      } addr;
+      pthread_t dataThread;
+      int fd;
+      socklen_t size;
+    };
+  private:
+  std::vector<Connection> conns;
+
+  pthread_t listenThread;
+  public:
+    bool init();
+    bool activate();
+    void run();
 };
 
 int scanDev(std::vector<Device*>& populate);

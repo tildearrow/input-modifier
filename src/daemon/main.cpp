@@ -1,6 +1,7 @@
 #include "imodd.h"
 
 std::vector<Device*> dev;
+SocketInterface sock;
 
 enum {
   doNothing=0,
@@ -80,6 +81,10 @@ int main(int argc, char** argv) {
   sigaction(SIGTSTP,&ststpH,NULL);
   chldH.sa_handler=childHandler;
   sigaction(SIGCHLD,&chldH,NULL);
+  // initialize interfaces
+  if (!sock.init()) {
+    return 1;
+  }
   // initialize devices (and input threads)
   imLogI("initializing devices...\n");
   for (auto i: dev) {
