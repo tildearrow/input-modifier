@@ -66,6 +66,17 @@ enum ActionType {
   actShiftMap
 };
 
+#define Command(x) int x(int output, std::vector<string>* args)
+
+Command(cmd_ls);
+
+struct AvailCommands {
+  const char* n;
+  int (*c)(int,std::vector<string>*);
+};
+
+extern const AvailCommands cmds[];
+
 struct Action {
   ActionType type;
   int code;
@@ -133,6 +144,8 @@ class Device {
   bindSet* curmap;
   struct timespec timeout;
   public:
+    string getName();
+    string getPath();
     void run();
     bool activate();
     bool deactivate();

@@ -22,6 +22,14 @@ Device::Device(string p):
   curmap(NULL) {
 }
 
+string Device::getName() {
+  return name;
+}
+
+string Device::getPath() {
+  return path;
+}
+
 bool Device::init() {
   char cstr[4096];
   unsigned char cap[256];

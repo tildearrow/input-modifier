@@ -46,18 +46,48 @@ void* clientThread(void* cli) {
   SocketInterface::Connection* client=(SocketInterface::Connection*)cli;
   char* buffer;
   int length;
-  imLogD("this is the client thread.\n");
+  bool haveNotFound;
+  std::vector<string>* pargs;
+  string arg;
   buffer=new char[16384];
-  write(client->fd,"hello!\n",strlen("hello!\n"));
+  write(client->fd,"input-modifier\n",strlen("input-modifier\n"));
+  // thread loop
+  imLogI("client %d connected\n",client->fd);
   while (1) {
     if ((length=read(client->fd,buffer,16384))<=0) break;
-    imLogD("i have read\n");
-    if (write(client->fd,buffer,length)<0) {
-      imLogW("write error %d\n",strerror(errno));
+    buffer[length-1]=0;
+    imLogI("client %d: %s\n",client->fd,buffer);
+    // parse arguments
+    pargs=new std::vector<string>;
+    arg="";
+    for (int i=0; i<length-1; i++) {
+      if (buffer[i]==' ') {
+        pargs->push_back(arg);
+        arg="";
+      } else {
+        arg+=buffer[i];
+      }
     }
+    pargs->push_back(arg);
+    for (auto i: *pargs) {
+      imLogD("- %s\n",i.c_str());
+    }
+    haveNotFound=true;
+    for (int i=0; cmds[i].n!=NULL; i++) {
+      if (strcmp((*pargs)[0].c_str(),cmds[i].n)==0) {
+        cmds[i].c(client->fd,pargs);
+        haveNotFound=false;
+        break;
+      }
+    }
+    delete pargs;
+    if (haveNotFound) {
+      write(client->fd,"Unknown command.\n",strlen("Unknown command.\n"));
+    }
+    write(client->fd,"Ready.\n",strlen("Ready.\n"));
   }
   close(client->fd);
-  imLogD("my job is done.\n");
+  imLogI("client %d lost connection\n",client->fd);
   return NULL;
 }
 
