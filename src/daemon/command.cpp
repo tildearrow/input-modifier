@@ -120,7 +120,7 @@ Command(cmd_addaction) {
     mapOp->keybinds[eventVal].actions.push_back(Action(actDisable,0));
   } else if ((*args)[eventArg+1]==S("key")) {
     // key (args: 1)
-    if (args->size()<2+eventArg+1) {
+    if (args->size()<2+(size_t)eventArg+1) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> key <key>\n");
       return 0;
     }
@@ -133,7 +133,7 @@ Command(cmd_addaction) {
     mapOp->keybinds[eventVal].actions.push_back(Action(actKey,intVal));
   } else if ((*args)[eventArg+1]==S("turbo")) {
     // turbo (args: 3)
-    if (args->size()<2+eventArg+3) {
+    if (args->size()<2+(size_t)eventArg+3) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> turbo <key> <timeOn> <timeOff>\n");
       return 0;
     }
@@ -156,7 +156,7 @@ Command(cmd_addaction) {
     mapOp->keybinds[eventVal].actions.push_back(Action(actTurbo,intVal,onTime,offTime));
   } else if ((*args)[eventArg+1]==S("rel")) {
     // relative (args: 2)
-    if (args->size()<2+eventArg+2) {
+    if (args->size()<2+(size_t)eventArg+2) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> rel <relEvent> <value>\n");
       return 0;
     }
@@ -170,7 +170,7 @@ Command(cmd_addaction) {
     mapOp->keybinds[eventVal].actions.push_back(Action(actRel,intVal,intVal1));
   } else if ((*args)[eventArg+1]==S("relconst")) {
     // relative constant (args: 3)
-    if (args->size()<2+eventArg+3) {
+    if (args->size()<2+(size_t)eventArg+3) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> relconst <relEvent> <value> <delay>\n");
       return 0;
     }
@@ -189,7 +189,7 @@ Command(cmd_addaction) {
     mapOp->keybinds[eventVal].actions.push_back(Action(actRel,intVal,intVal1,onTime));
   } else if ((*args)[eventArg+1]==S("abs")) {
     // absolute (args: 2)
-    if (args->size()<2+eventArg+2) {
+    if (args->size()<2+(size_t)eventArg+2) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> abs <absEvent> <value>\n");
       return 0;
     }
@@ -203,7 +203,7 @@ Command(cmd_addaction) {
     mapOp->keybinds[eventVal].actions.push_back(Action(actAbs,intVal,intVal1));
   } else if ((*args)[eventArg+1]==S("execute")) {
     // execute (args: at least 1)
-    if (args->size()<2+eventArg+1) {
+    if (args->size()<2+(size_t)eventArg+1) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> execute <command> [args ...]\n");
       return 0;
     }
@@ -214,7 +214,7 @@ Command(cmd_addaction) {
     mapOp->keybinds[eventVal].actions.push_back(Action(actExecute,(*args)[eventArg+2],argVec,envVec));
   } else if ((*args)[eventArg+1]==S("switchmap")) {
     // switch map (args: 1)
-    if (args->size()<2+eventArg+1) {
+    if (args->size()<2+(size_t)eventArg+1) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> switchmap <map>\n");
       return 0;
     }
@@ -227,7 +227,7 @@ Command(cmd_addaction) {
     mapOp->keybinds[eventVal].actions.push_back(Action(actSwitchMap,mapName));
   } else if ((*args)[eventArg+1]==S("shiftmap")) {
     // shift map (args: 1)
-    if (args->size()<2+eventArg+1) {
+    if (args->size()<2+(size_t)eventArg+1) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> shiftmap <map>\n");
       return 0;
     }
