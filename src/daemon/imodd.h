@@ -49,6 +49,10 @@ struct timespec mkts(time_t sec, long nsec);
 struct timespec stots(string s);
 struct timespec curTime(clockid_t clockSource);
 
+extern "C" {
+#include "names.h"
+};
+
 void childHandler(int data);
 
 // 0: no weird devices

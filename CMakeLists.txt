@@ -3,9 +3,10 @@ project(input-modifier)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(imodd 
+add_executable(imodd
 src/daemon/log.cpp
 src/daemon/time.cpp
+src/daemon/names.c
 src/daemon/scanner.cpp
 src/daemon/device.cpp
 src/daemon/command.cpp
