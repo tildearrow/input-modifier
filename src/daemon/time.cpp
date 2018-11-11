@@ -43,6 +43,19 @@ struct timespec stots(string s) {
   return ret;
 }
 
+string tstos(struct timespec ts) {
+  string ret;
+  int deci;
+  deci=ts.tv_nsec;
+  while ((deci%10)==0 || deci==0) {
+    deci/=10;
+  }
+  ret+=std::to_string(ts.tv_sec);
+  ret+=".";
+  ret+=std::to_string(deci);
+  return ret;
+}
+
 struct timespec curTime(clockid_t clockSource) {
   struct timespec ret;
   clock_gettime(clockSource,&ret);

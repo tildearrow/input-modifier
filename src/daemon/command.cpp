@@ -246,6 +246,287 @@ Command(cmd_addaction) {
   return 1;
 }
 
+Command(cmd_delaction) {
+  int eventArg, eventVal, actionVal;
+  bindSet* mapOp;
+  if (args->size()<4) {
+    dprintf(output,"usage: delaction <device> [@keymap] <event> <index>\n");
+    return 0;
+  }
+
+  IndexedCommand
+
+  if ((*args)[2][0]=='@') {
+    eventArg=3;
+  } else {
+    eventArg=2;
+  }
+
+  if (eventArg==3) {
+    int whereToOperate=dev[index]->findMap(S((*args)[2].c_str()+1));
+    if (whereToOperate<0) {
+      dprintf(output,"error: map not found.\n");
+      return 0;
+    }
+    mapOp=dev[index]->mappings[whereToOperate];
+  } else {
+    mapOp=dev[index]->curmap;
+  }
+  
+  if (mapOp==NULL) {
+    dprintf(output,"error: no current map.\n");
+    return 0;
+  }
+  
+  eventVal=stoi((*args)[eventArg]);
+  if (eventVal<0 || eventVal>KEY_CNT) {
+    dprintf(output,"error: event number out of range.\n");
+    return 0;
+  }
+
+  if (!mapOp->keybinds[eventVal].doModify) {
+    dprintf(output,"error: this key is not bound.\n");
+    return 0;
+  }
+
+  actionVal=stoi((*args)[eventArg+1]);
+  if (actionVal<0 || (size_t)actionVal>=mapOp->keybinds[eventVal].actions.size()) {
+    dprintf(output,"error: action index out of range (0-%lu).\n",mapOp->keybinds[eventVal].actions.size()-1);
+    return 0;
+  }
+
+  mapOp->keybinds[eventVal].actions.erase(mapOp->keybinds[eventVal].actions.begin()+actionVal);
+  if (mapOp->keybinds[eventVal].actions.empty()) {
+    mapOp->keybinds[eventVal].doModify=false;
+  }
+  return 1;
+}
+
+Command(cmd_clearactions) {
+  int eventArg, eventVal;
+  bindSet* mapOp;
+  if (args->size()<3) {
+    dprintf(output,"usage: clearactions <device> [@keymap] <event>\n");
+    return 0;
+  }
+
+  IndexedCommand
+
+  if ((*args)[2][0]=='@') {
+    eventArg=3;
+  } else {
+    eventArg=2;
+  }
+
+  if (eventArg==3) {
+    int whereToOperate=dev[index]->findMap(S((*args)[2].c_str()+1));
+    if (whereToOperate<0) {
+      dprintf(output,"error: map not found.\n");
+      return 0;
+    }
+    mapOp=dev[index]->mappings[whereToOperate];
+  } else {
+    mapOp=dev[index]->curmap;
+  }
+  
+  if (mapOp==NULL) {
+    dprintf(output,"error: no current map.\n");
+    return 0;
+  }
+  
+  eventVal=stoi((*args)[eventArg]);
+  if (eventVal<0 || eventVal>KEY_CNT) {
+    dprintf(output,"error: event number out of range.\n");
+    return 0;
+  }
+
+  if (!mapOp->keybinds[eventVal].doModify) {
+    dprintf(output,"error: this key is not bound.\n");
+    return 0;
+  }
+
+  mapOp->keybinds[eventVal].actions.clear();
+  mapOp->keybinds[eventVal].doModify=false;
+  return 1;
+}
+
+Command(cmd_copyactions) {
+  int eventArg, eventVal, destVal;
+  bindSet* mapOp;
+  if (args->size()<3) {
+    dprintf(output,"usage: copyactions <device> [@keymap] <event> <destination>\n");
+    return 0;
+  }
+
+  IndexedCommand
+
+  if ((*args)[2][0]=='@') {
+    eventArg=3;
+  } else {
+    eventArg=2;
+  }
+
+  if (eventArg==3) {
+    int whereToOperate=dev[index]->findMap(S((*args)[2].c_str()+1));
+    if (whereToOperate<0) {
+      dprintf(output,"error: map not found.\n");
+      return 0;
+    }
+    mapOp=dev[index]->mappings[whereToOperate];
+  } else {
+    mapOp=dev[index]->curmap;
+  }
+  
+  if (mapOp==NULL) {
+    dprintf(output,"error: no current map.\n");
+    return 0;
+  }
+  
+  eventVal=stoi((*args)[eventArg]);
+  if (eventVal<0 || eventVal>KEY_CNT) {
+    dprintf(output,"error: event number out of range.\n");
+    return 0;
+  }
+  
+  destVal=stoi((*args)[eventArg+1]);
+  if (destVal<0 || destVal>KEY_CNT) {
+    dprintf(output,"error: destination event number out of range.\n");
+    return 0;
+  }
+
+  if (eventVal==destVal) {
+    dprintf(output,"error: source and destination cannot be equal.\n");
+    return 0;
+  }
+  
+  if (!mapOp->keybinds[eventVal].doModify) {
+    dprintf(output,"error: source key is not bound.\n");
+    return 0;
+  }
+
+  mapOp->keybinds[destVal].doModify=true;
+  mapOp->keybinds[destVal].actions=mapOp->keybinds[eventVal].actions;
+  return 1;
+}
+
+Command(cmd_listactions) {
+  int eventArg, eventVal, ic;
+  bindSet* mapOp;
+  if (args->size()<3) {
+    dprintf(output,"usage: listactions <device> [@keymap] <event>\n");
+    return 0;
+  }
+  
+  IndexedCommand
+
+  if ((*args)[2][0]=='@') {
+    eventArg=3;
+  } else {
+    eventArg=2;
+  }
+
+  if (eventArg==3) {
+    int whereToOperate=dev[index]->findMap(S((*args)[2].c_str()+1));
+    if (whereToOperate<0) {
+      dprintf(output,"error: map not found.\n");
+      return 0;
+    }
+    mapOp=dev[index]->mappings[whereToOperate];
+  } else {
+    mapOp=dev[index]->curmap;
+  }
+  
+  if (mapOp==NULL) {
+    dprintf(output,"error: no current map.\n");
+    return 0;
+  }
+  
+  eventVal=stoi((*args)[eventArg]);
+  if (eventVal<0 || eventVal>KEY_CNT) {
+    dprintf(output,"error: event number out of range.\n");
+    return 0;
+  }
+
+  if (!mapOp->keybinds[eventVal].doModify) {
+    dprintf(output,"error: this key is not bound.\n");
+    return 0;
+  }
+
+  ic=0;
+  for (auto& i: mapOp->keybinds[eventVal].actions) {
+    switch (i.type) {
+      case actKey:
+        dprintf(output,"%d: key: %s\n",ic,keynames[i.code]);
+        break;
+      case actTurbo:
+        dprintf(output,"%d: turbo: %s (%ss on, %ss off)\n",ic,keynames[i.code],tstos(i.timeOn).c_str(),tstos(i.timeOff).c_str());
+        break;
+      case actRel:
+        dprintf(output,"%d: relative: %s (%d)\n",ic,relnames[i.code],i.value);
+        break;
+      case actRelConst:
+        dprintf(output,"%d: relconst: %s (%d, delay %ss)\n",ic,relnames[i.code],i.value,tstos(i.timeOn).c_str());
+        break;
+      case actAbs:
+        dprintf(output,"%d: absolute: %s (%d)\n",ic,absnames[i.code],i.value);
+        break;
+      case actExecute:
+        dprintf(output,"%d: execute: %s\n",ic,i.command.c_str());
+        for (auto& j: i.args) {
+          dprintf(output,"- %s\n",j.c_str());
+        }
+        break;
+      case actSwitchMap:
+        dprintf(output,"%d: switchmap: %s\n",ic,i.command.c_str());
+        break;
+      case actShiftMap:
+        dprintf(output,"%d: shiftmap: %s\n",ic,i.command.c_str());
+        break;
+      case actDisable:
+        dprintf(output,"%d: disable\n",ic);
+        break;
+    }
+    ic++;
+  }
+
+  return 1;
+}
+
+Command(cmd_listbinds) {
+  bindSet* mapOp;
+  if (args->size()<2) {
+    dprintf(output,"usage: listactions <device> [keymap]\n");
+    return 0;
+  }
+
+  IndexedCommand
+
+  if (args->size()>=3) {
+    int whereToOperate=dev[index]->findMap((*args)[2]);
+    if (whereToOperate<0) {
+      dprintf(output,"error: map not found.\n");
+      return 0;
+    }
+    mapOp=dev[index]->mappings[whereToOperate];
+  } else {
+    mapOp=dev[index]->curmap;
+  }
+  
+  if (mapOp==NULL) {
+    dprintf(output,"error: no current map.\n");
+    return 0;
+  }
+
+  dprintf(output,"bound keys:\n");
+  for (int i=0; i<KEY_CNT; i++) {
+    if (mapOp->keybinds[i].doModify) {
+      dprintf(output,"- %s\n",keynames[i]);
+    }
+  }
+
+  return 1;
+}
+
 Command(cmd_listdevices) {
   for (size_t i=0; i<dev.size(); i++) {
     dprintf(output,"%zu: %s\n",i,dev[i]->getName().c_str());
@@ -253,17 +534,77 @@ Command(cmd_listdevices) {
   return 1;
 }
 
+Command(cmd_enable) {
+  if (args->size()<2) {
+    dprintf(output,"usage: enable <device>\n");
+    return 0;
+  }
+
+  IndexedCommand
+
+  if (dev[index]->enabled) {
+    dprintf(output,"error: that device is already enabled.\n");
+    return 0;
+  }
+
+  dev[index]->activate();
+  dev[index]->enabled=true;
+  return 1;
+}
+
+Command(cmd_disable) {
+  if (args->size()<2) {
+    dprintf(output,"usage: disable <device>\n");
+    return 0;
+  }
+
+  IndexedCommand
+
+  if (!dev[index]->enabled) {
+    dprintf(output,"error: that device is already disabled.\n");
+    return 0;
+  }
+
+  dev[index]->deactivate();
+  dev[index]->enabled=true;
+  return 1;
+}
+
+Command(cmd_version) {
+  dprintf(output,
+  "input-modifier (version " IMOD_VERSION ")\n"
+  "copyright 2018 tildearrow\n\n"
+  "this program is free software; you can redistribute it and/or modify\n"
+  "it under the terms of the GNU General Public License as published by\n"
+  "the Free Software Foundation; either version 2 of the License, or\n"
+  "(at your option) any later version.\n\n"
+
+  "this program is distributed in the hope that it will be useful,\n"
+  "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+  "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  see the\n"
+  "GNU General Public License for more details.\n\n"
+
+  "you should have received a copy of the GNU General Public License along\n"
+  "with this program; if not, write to the Free Software Foundation, Inc.,\n"
+  "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n\n"
+
+  "to be honest, this program may not be useful at the current moment, but\n"
+  "this may change in a future version.\n");
+  return 1;
+}
+
 const AvailCommands cmds[]={
-  {"addaction", cmd_addaction},/*
+  {"addaction", cmd_addaction},
   {"delaction", cmd_delaction},
   {"clearactions", cmd_clearactions},
   {"copyactions", cmd_copyactions},
   {"listactions", cmd_listactions},
-  {"listbinds", cmd_listbinds},*/
+  {"listbinds", cmd_listbinds},
   {"listmaps", cmd_listmaps},
-  {"listdevices", cmd_listdevices},/*
+  {"listdevices", cmd_listdevices},
   {"enable", cmd_enable},
   {"disable", cmd_disable},
+  /*
   {"showsettings", cmd_showsettings},
   {"settings", cmd_settings},*/
   {"newmap", cmd_newmap},/*
@@ -282,7 +623,7 @@ const AvailCommands cmds[]={
   {"listprofiles", cmd_listprofiles},
   {"setprofile", cmd_setprofile},
   {"switchprofile", cmd_switchprofile},
-  {"version", cmd_version},
 */
+  {"version", cmd_version},
   {NULL, NULL}
 };

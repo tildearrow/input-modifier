@@ -33,6 +33,8 @@ typedef std::string string;
 
 #define logLevel 3
 
+#define IMOD_VERSION "0.9"
+
 int imLogD(const char* format, ...);
 int imLogI(const char* format, ...);
 int imLogW(const char* format, ...);
@@ -47,6 +49,7 @@ struct timespec operator +(const struct timespec& l, const long& r);
 struct timespec operator -(const struct timespec& l, const long& r);
 struct timespec mkts(time_t sec, long nsec);
 struct timespec stots(string s);
+string tstos(struct timespec ts);
 struct timespec curTime(clockid_t clockSource);
 
 extern "C" {
@@ -135,7 +138,6 @@ class Device {
   struct uinput_user_dev uiconfig;
   bool threadRunning;
   pthread_t inThread;
-  bool active;
   std::bitset<EV_CNT> evcaps;
   std::bitset<SYN_CNT> syncaps;
   std::bitset<KEY_CNT> keycaps;
@@ -151,6 +153,7 @@ class Device {
 
   struct timespec timeout;
   public:
+    bool active, enabled;
     std::vector<bindSet*> mappings;
     bindSet* curmap;
     

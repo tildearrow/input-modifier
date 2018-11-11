@@ -8,6 +8,7 @@ Device::Device():
   uinputfd(-1),
   inThread(-1),
   active(false),
+  enabled(false),
   curmap(NULL) {
   for (int i=0; i<8; i++) {
     fd[i]=-1; path[i]="";
@@ -22,6 +23,7 @@ Device::Device(string n, string p):
   uinputfd(-1),
   inThread(-1),
   active(false),
+  enabled(false),
   curmap(NULL) {
   for (int i=0; i<8; i++) {
     fd[i]=-1; path[i]="";

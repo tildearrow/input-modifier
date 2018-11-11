@@ -89,24 +89,32 @@ int main(int argc, char** argv) {
   imLogI("initializing devices...\n");
   for (auto i: dev) {
     i->init();
-    i->activate();
+    if (i->enabled) {
+      i->activate();
+    }
   }
   imLogI("done! running.\n");
   while (1) {
     pause();
     if (whatToDo==doQuit) {
       for (auto i: dev) {
-        i->deactivate();
+        if (i->active) {
+          i->deactivate();
+        }
       }
       break;
     }
     if (whatToDo==doSuspend) {
       for (auto i: dev) {
-        i->deactivate();
+        if (i->active) {
+          i->deactivate();
+        }
       }
       raise(SIGSTOP);
       for (auto i: dev) {
-        i->activate();
+        if (i->enabled) {
+          i->activate();
+        }
       }
     }
     whatToDo=doNothing;
