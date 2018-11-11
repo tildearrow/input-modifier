@@ -9,6 +9,40 @@ struct timespec mkts(time_t sec, long nsec) {
   return ret;
 }
 
+const int pow10[10]={
+  1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
+};
+
+struct timespec stots(string s) {
+  struct timespec ret;
+  long int upper, lower;
+  bool curStat;
+  string upel, lowel;
+  curStat=false;
+  for (size_t i=0; i<s.length(); i++) {
+    if (s[i]=='.') {
+      if (curStat) {
+        return mkts(0,0);
+      }
+      curStat=true;
+      continue;
+    }
+    if (curStat) {
+      if (lowel.length()<10) {
+        lowel+=s[i];
+      }
+    } else {
+      upel+=s[i];
+    }
+  }
+  if (lowel.empty()) lowel="0";
+  upper=stoi(upel);
+  lower=stoi(lowel)*pow10[9-lowel.length()];
+  ret.tv_sec=upper;
+  ret.tv_nsec=lower;
+  return ret;
+}
+
 struct timespec curTime(clockid_t clockSource) {
   struct timespec ret;
   clock_gettime(clockSource,&ret);

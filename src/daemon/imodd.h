@@ -46,6 +46,7 @@ struct timespec operator -(const struct timespec& l, const struct timespec& r);
 struct timespec operator +(const struct timespec& l, const long& r);
 struct timespec operator -(const struct timespec& l, const long& r);
 struct timespec mkts(time_t sec, long nsec);
+struct timespec stots(string s);
 struct timespec curTime(clockid_t clockSource);
 
 void childHandler(int data);
@@ -63,12 +64,11 @@ enum ActionType {
   actAbs,
   actExecute,
   actSwitchMap,
-  actShiftMap
+  actShiftMap,
+  actDisable
 };
 
 #define Command(x) int x(int output, std::vector<string>* args)
-
-Command(cmd_ls);
 
 struct AvailCommands {
   const char* n;
@@ -90,6 +90,7 @@ struct Action {
   Action(ActionType t, int c, int v): type(t), code(c), value(v) {}
   Action(ActionType t, int c, int v, struct timespec ti): type(t), code(c), value(v), timeOn(ti) {}
   Action(ActionType t, string prog, std::vector<string>& a, std::vector<string>& e): type(t), command(prog), args(a), env(e) {}
+  Action(ActionType t, string name): type(t), command(name) {}
 };
 
 struct eventBind {
@@ -103,9 +104,11 @@ struct eventBind {
 };
 
 struct bindSet {
+  string name;
   eventBind keybinds[KEY_CNT];
   eventBind relbinds[REL_CNT];
   eventBind swbinds[SW_CNT];
+  bindSet(string n): name(n) {}
 };
 
 struct activeTurbo {
@@ -118,8 +121,10 @@ struct activeTurbo {
 };
 
 class Device {
-  int fd;
-  string name, phys, path;
+  int fd[8];
+  int fds;
+  bool isBulkDevice;
+  string name, phys, path[8];
   struct input_id info;
   struct input_absinfo absinfo[ABS_CNT];
   int uinputfd;
@@ -140,17 +145,20 @@ class Device {
 
   std::vector<activeTurbo> runTurbo;
 
-  std::vector<bindSet*> mappings;
-  bindSet* curmap;
   struct timespec timeout;
   public:
+    std::vector<bindSet*> mappings;
+    bindSet* curmap;
+    
     string getName();
-    string getPath();
     void run();
     bool activate();
     bool deactivate();
     bool init();
-    Device(string p);
+    void newMap(string name);
+    int findMap(string name);
+    bool addPath(string p);
+    Device(string n, string p);
     Device();
 };
 

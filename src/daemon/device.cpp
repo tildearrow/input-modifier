@@ -1,140 +1,162 @@
 #include "imodd.h"
 
 Device::Device():
-  fd(-1),
+  fds(0),
+  isBulkDevice(false),
   name(""),
   phys(""),
-  path(""),
   uinputfd(-1),
   inThread(-1),
   active(false),
   curmap(NULL) {
+  for (int i=0; i<8; i++) {
+    fd[i]=-1; path[i]="";
+  }
 }
 
-Device::Device(string p):
-  fd(-1),
-  name(""),
+Device::Device(string n, string p):
+  fds(1),
+  isBulkDevice(false),
+  name(n),
   phys(""),
-  path(p),
   uinputfd(-1),
   inThread(-1),
   active(false),
   curmap(NULL) {
+  for (int i=0; i<8; i++) {
+    fd[i]=-1; path[i]="";
+  }
+  path[0]=p;
+}
+
+bool Device::addPath(string p) {
+  if (fds>=8) return false;
+  path[fds++]=p;
+  return true;
 }
 
 string Device::getName() {
   return name;
 }
 
+/*
 string Device::getPath() {
   return path;
 }
+*/
 
 bool Device::init() {
   char cstr[4096];
   unsigned char cap[256];
-  imLogD("opening device %s\n",path.c_str());
-  fd=open(path.c_str(),O_RDONLY);
-  if (fd<0) {
-    imLogW("couldn't open device path %s: %s\n",path.c_str(),strerror(errno));
-    return false;
-  }
-  ioctl(fd,EVIOCGNAME(4095),cstr);
-  name=cstr;
-  ioctl(fd,EVIOCGPHYS(4095),cstr);
-  phys=cstr;
-  ioctl(fd,EVIOCGID,&info);
-  // event caps
-  ioctl(fd,EVIOCGBIT(0,256),&cap);
-  for (int i=0; i<EV_CNT; i++) {
-    evcaps[i]=!!(cap[i/8]&(1<<(i&7)));
-  }
-  // sync caps
-  if (evcaps[EV_SYN]) {
-    ioctl(fd,EVIOCGBIT(EV_SYN,256),&cap);
-    for (int i=0; i<SYN_CNT; i++) {
-      syncaps[i]=!!(cap[i/8]&(1<<(i&7)));
+  std::bitset<EV_CNT> tempevcaps;
+  for (int h=0; h<fds; h++) {
+    imLogD("opening device %s\n",path[h].c_str());
+    fd[h]=open(path[h].c_str(),O_RDONLY);
+    if (fd[h]<0) {
+      imLogW("couldn't open device path %s: %s\n",path[h].c_str(),strerror(errno));
+      return false;
     }
-  }
-  // key caps
-  if (evcaps[EV_KEY]) {
-    ioctl(fd,EVIOCGBIT(EV_KEY,256),&cap);
-    for (int i=0; i<KEY_CNT; i++) {
-      keycaps[i]=!!(cap[i/8]&(1<<(i&7)));
+    ioctl(fd[h],EVIOCGNAME(4095),cstr);
+    name=cstr;
+    ioctl(fd[h],EVIOCGPHYS(4095),cstr);
+    phys=cstr;
+    ioctl(fd[h],EVIOCGID,&info);
+    // event caps
+    ioctl(fd[h],EVIOCGBIT(0,256),&cap);
+    tempevcaps.reset();
+    for (int i=0; i<EV_CNT; i++) {
+      if (!!(cap[i/8]&(1<<(i&7)))) {
+        evcaps[i]=true;
+      }
+      tempevcaps[i]=!!(cap[i/8]&(1<<(i&7)));
     }
-  }
-  // relative caps
-  if (evcaps[EV_REL]) {
-    ioctl(fd,EVIOCGBIT(EV_REL,256),&cap);
-    for (int i=0; i<REL_CNT; i++) {
-      relcaps[i]=!!(cap[i/8]&(1<<(i&7)));
+    // sync caps
+    if (tempevcaps[EV_SYN]) {
+      ioctl(fd[h],EVIOCGBIT(EV_SYN,256),&cap);
+      for (int i=0; i<SYN_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) syncaps[i]=true;
+      }
     }
-  }
-  // absolute caps
-  if (evcaps[EV_ABS]) {
-    ioctl(fd,EVIOCGBIT(EV_ABS,256),&cap);
-    for (int i=0; i<ABS_CNT; i++) {
-      abscaps[i]=!!(cap[i/8]&(1<<(i&7)));
+    // key caps
+    if (tempevcaps[EV_KEY]) {
+      ioctl(fd[h],EVIOCGBIT(EV_KEY,256),&cap);
+      for (int i=0; i<KEY_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) keycaps[i]=true;
+      }
     }
-  }
-  // misc caps
-  if (evcaps[EV_MSC]) {
-    ioctl(fd,EVIOCGBIT(EV_MSC,256),&cap);
-    for (int i=0; i<MSC_CNT; i++) {
-      msccaps[i]=!!(cap[i/8]&(1<<(i&7)));
+    // relative caps
+    if (tempevcaps[EV_REL]) {
+      ioctl(fd[h],EVIOCGBIT(EV_REL,256),&cap);
+      for (int i=0; i<REL_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) relcaps[i]=true;
+      }
     }
-  }
-  // switch caps
-  if (evcaps[EV_SW]) {
-    ioctl(fd,EVIOCGBIT(EV_SW,256),&cap);
-    for (int i=0; i<SW_CNT; i++) {
-      swcaps[i]=!!(cap[i/8]&(1<<(i&7)));
+    // absolute caps
+    if (tempevcaps[EV_ABS]) {
+      ioctl(fd[h],EVIOCGBIT(EV_ABS,256),&cap);
+      for (int i=0; i<ABS_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) abscaps[i]=true;
+      }
     }
-  }
-  // LED caps
-  if (evcaps[EV_LED]) {
-    ioctl(fd,EVIOCGBIT(EV_LED,256),&cap);
-    for (int i=0; i<LED_CNT; i++) {
-      ledcaps[i]=!!(cap[i/8]&(1<<(i&7)));
+    // misc caps
+    if (tempevcaps[EV_MSC]) {
+      ioctl(fd[h],EVIOCGBIT(EV_MSC,256),&cap);
+      for (int i=0; i<MSC_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) msccaps[i]=true;
+      }
     }
-  }
-  // sound caps
-  if (evcaps[EV_SND]) {
-    ioctl(fd,EVIOCGBIT(EV_SND,256),&cap);
-    for (int i=0; i<SND_CNT; i++) {
-      sndcaps[i]=!!(cap[i/8]&(1<<(i&7)));
+    // switch caps
+    if (tempevcaps[EV_SW]) {
+      ioctl(fd[h],EVIOCGBIT(EV_SW,256),&cap);
+      for (int i=0; i<SW_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) swcaps[i]=true;
+      }
     }
-  }
-  // repeat caps
-  if (evcaps[EV_REP]) {
-    ioctl(fd,EVIOCGBIT(EV_REP,256),&cap);
-    for (int i=0; i<REP_CNT; i++) {
-      repcaps[i]=!!(cap[i/8]&(1<<(i&7)));
+    // LED caps
+    if (tempevcaps[EV_LED]) {
+    ioctl(fd[h],EVIOCGBIT(EV_LED,256),&cap);
+      for (int i=0; i<LED_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) ledcaps[i]=true;
+      }
     }
-  }
-  // absolute properties
-  if (evcaps[EV_ABS]) for (int i=0; i<ABS_CNT; i++) {
-    if (abscaps[i]) {
-      ioctl(fd,EVIOCGABS(i),&absinfo[i]);
+    // sound caps
+    if (tempevcaps[EV_SND]) {
+      ioctl(fd[h],EVIOCGBIT(EV_SND,256),&cap);
+      for (int i=0; i<SND_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) sndcaps[i]=true;
+      }
     }
+    // repeat caps
+    if (tempevcaps[EV_REP]) {
+      ioctl(fd[h],EVIOCGBIT(EV_REP,256),&cap);
+      for (int i=0; i<REP_CNT; i++) {
+        if (!!(cap[i/8]&(1<<(i&7)))) repcaps[i]=true;
+      }
+    }
+    // absolute properties
+    if (tempevcaps[EV_ABS]) for (int i=0; i<ABS_CNT; i++) {
+      if (abscaps[i]) {
+        ioctl(fd[h],EVIOCGABS(i),&absinfo[i]);
+      }
+    }
+    imLogD("%s: %s\n",path[h].c_str(),name.c_str());
+    imLogD("  - phys: %s\n",phys.c_str());
+    imLogD("  - vendor/product: %.4x:%.4x\n",info.vendor,info.product);
+    imLogD("  - evcaps: %s\n",evcaps.to_string().c_str());
+    if (evcaps[EV_SYN]) imLogD("    - syncaps: %s\n",syncaps.to_string().c_str());
+    if (evcaps[EV_KEY]) imLogD("    - keycaps: %s\n",keycaps.to_string().c_str());
+    if (evcaps[EV_REL]) imLogD("    - relcaps: %s\n",relcaps.to_string().c_str());
+    if (evcaps[EV_ABS]) imLogD("    - abscaps: %s\n",abscaps.to_string().c_str());
+    if (evcaps[EV_MSC]) imLogD("    - msccaps: %s\n",msccaps.to_string().c_str());
+    if (evcaps[EV_SW]) imLogD("    - swcaps: %s\n",swcaps.to_string().c_str());
+    if (evcaps[EV_LED]) imLogD("    - ledcaps: %s\n",ledcaps.to_string().c_str());
+    if (evcaps[EV_SND]) imLogD("    - sndcaps: %s\n",sndcaps.to_string().c_str());
+    if (evcaps[EV_REP]) imLogD("    - repcaps: %s\n",repcaps.to_string().c_str());
   }
-  imLogD("%s: %s\n",path.c_str(),name.c_str());
-  imLogD("  - phys: %s\n",phys.c_str());
-  imLogD("  - vendor/product: %.4x:%.4x\n",info.vendor,info.product);
-  imLogD("  - evcaps: %s\n",evcaps.to_string().c_str());
-  if (evcaps[EV_SYN]) imLogD("    - syncaps: %s\n",syncaps.to_string().c_str());
-  if (evcaps[EV_KEY]) imLogD("    - keycaps: %s\n",keycaps.to_string().c_str());
-  if (evcaps[EV_REL]) imLogD("    - relcaps: %s\n",relcaps.to_string().c_str());
-  if (evcaps[EV_ABS]) imLogD("    - abscaps: %s\n",abscaps.to_string().c_str());
-  if (evcaps[EV_MSC]) imLogD("    - msccaps: %s\n",msccaps.to_string().c_str());
-  if (evcaps[EV_SW]) imLogD("    - swcaps: %s\n",swcaps.to_string().c_str());
-  if (evcaps[EV_LED]) imLogD("    - ledcaps: %s\n",ledcaps.to_string().c_str());
-  if (evcaps[EV_SND]) imLogD("    - sndcaps: %s\n",sndcaps.to_string().c_str());
-  if (evcaps[EV_REP]) imLogD("    - repcaps: %s\n",repcaps.to_string().c_str());
 
   // initialize map if needed
   if (mappings.empty()) {
-    mappings.push_back(new bindSet);
+    mappings.push_back(new bindSet("Default"));
     curmap=mappings[0];
     // enable to test.
     /*
@@ -152,7 +174,7 @@ void* devThread(void* dev) {
 bool Device::activate() {
   uinputfd=open("/dev/uinput",O_RDWR);
   if (uinputfd<0) {
-    imLogW("couldn't open /dev/uinput for device %s: %s\n",path.c_str(),strerror(errno));
+    imLogW("couldn't open /dev/uinput for device %s: %s\n",name.c_str(),strerror(errno));
     imLogW("fixing this problem...\n");
     if (system(_PREFIX "/bin/imod-uinput-helper")!=0) // or
     if (system("./imod-uinput-helper")!=0) {
@@ -201,7 +223,7 @@ bool Device::activate() {
   ioctl(uinputfd,UI_DEV_CREATE);
   // create input processing thread
   if (pthread_create(&inThread,NULL,devThread,this)!=0) {
-    imLogW("couldn't create thread for device %s: %s\n",path.c_str(),strerror(errno));
+    imLogW("couldn't create thread for device %s: %s\n",name.c_str(),strerror(errno));
     close(uinputfd);
     return false;
   }
@@ -216,8 +238,10 @@ bool Device::deactivate() {
     pthread_cancel(inThread);
     pthread_join(inThread,NULL);
     imLogD("%s: ungrabbing.\n",name.c_str());
-    if (ioctl(fd,EVIOCGRAB,0)<0) {
-      imLogE("%s: couldn't ungrab: %s\n",name.c_str(),strerror(errno));
+    for (int i=0; i<fds; i++) {
+      if (ioctl(fd[i],EVIOCGRAB,0)<0) {
+        imLogE("%s: couldn't ungrab %s: %s\n",name.c_str(),path[i].c_str(),strerror(errno));
+      }
     }
     close(uinputfd);
     uinputfd=-1;
@@ -226,6 +250,17 @@ bool Device::deactivate() {
     return true;
   }
   return false;
+}
+
+void Device::newMap(string name) {
+  mappings.push_back(new bindSet(name));
+}
+
+int Device::findMap(string name) {
+  for (size_t i=0; i<mappings.size(); i++) {
+    if (mappings[i]->name==name) return i;
+  }
+  return -1;
 }
 
 void Device::run() {
@@ -241,8 +276,10 @@ void Device::run() {
   syncev.type=EV_SYN;
   syncev.code=0;
   syncev.value=0;
-  if (ioctl(fd,EVIOCGRAB,1)<0) {
-    imLogE("%s: couldn't grab: %s\n",name.c_str(),strerror(errno));
+  for (int i=0; i<fds; i++) {
+    if (ioctl(fd[i],EVIOCGRAB,1)<0) {
+      imLogE("%s: couldn't grab %s: %s\n",name.c_str(),path[i].c_str(),strerror(errno));
+    }
   }
   ctime=mkts(0,0);
   while (1) {
@@ -263,8 +300,8 @@ void Device::run() {
       }
     }
     FD_ZERO(&devfd);
-    FD_SET(fd,&devfd);
-    amount=pselect(fd+1,&devfd,NULL,NULL,(runTurbo.empty())?(NULL):(&ctime),NULL);
+    for (int i=0; i<fds; i++) FD_SET(fd[i],&devfd);
+    amount=pselect(fd[fds-1]+1,&devfd,NULL,NULL,(runTurbo.empty())?(NULL):(&ctime),NULL);
     if (amount==-1) {
       if (errno==EINTR) continue;
       imLogW("%s: pselect: %s\n",strerror(errno));
@@ -283,7 +320,7 @@ void Device::run() {
       smallest=NULL;
       continue;
     }
-    count=read(fd,&event,sizeof(struct input_event));
+    for (int i=0; i<fds; i++) if (FD_ISSET(fd[i],&devfd)) count=read(fd[i],&event,sizeof(struct input_event));
     if (count<0) {
       if (errno==EINTR) { // we got a signal
         break;
@@ -292,7 +329,7 @@ void Device::run() {
         break;
       }
     } 
-    imLogD("%s: %d %d %d\n",path.c_str(),event.type,event.code,event.value);
+    imLogD("%s: %d %d %d\n",name.c_str(),event.type,event.code,event.value);
     // EVENT REWIRING BEGIN //
     if (curmap==NULL) {
       wire=event;
@@ -419,8 +456,10 @@ void Device::run() {
     // EVENT REWIRING END //
   }
   imLogD("%s: ungrabbing.\n",name.c_str());
-  if (ioctl(fd,EVIOCGRAB,0)<0) {
-    imLogE("%s: couldn't ungrab: %s\n",name.c_str(),strerror(errno));
+  for (int i=0; i<fds; i++) {
+    if (ioctl(fd[i],EVIOCGRAB,0)<0) {
+      imLogE("%s: couldn't ungrab %s: %s\n",name.c_str(),path[i].c_str(),strerror(errno));
+    }
   }
   close(uinputfd);
   uinputfd=-1;
