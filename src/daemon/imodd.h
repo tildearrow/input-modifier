@@ -7,6 +7,7 @@
 #include <string>
 #include <bitset>
 #include <vector>
+#include <queue>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -17,6 +18,7 @@
 #include <grp.h>
 #include <signal.h>
 #include <dirent.h>
+#include <sys/inotify.h>
 #include <linux/input.h>
 #include <linux/uinput.h>
 
@@ -198,5 +200,22 @@ class SocketInterface {
     bool activate();
     void run();
 };
+
+enum PlugEventType {
+  evPlug,
+  evUnplug
+};
+
+struct PlugEvent {
+  PlugEventType type;
+  string path;
+};
+
+class DeviceListener {
+  int fd;
+  std::queue<PlugEvent> events;
+  public:
+    bool init();
+}
 
 int scanDev(std::vector<Device*>& populate);
