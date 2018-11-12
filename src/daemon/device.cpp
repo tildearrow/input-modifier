@@ -154,17 +154,16 @@ bool Device::init() {
     if (evcaps[EV_LED]) imLogD("    - ledcaps: %s\n",ledcaps.to_string().c_str());
     if (evcaps[EV_SND]) imLogD("    - sndcaps: %s\n",sndcaps.to_string().c_str());
     if (evcaps[EV_REP]) imLogD("    - repcaps: %s\n",repcaps.to_string().c_str());
+    
+    close(fd[h]);
+    fd[h]=-1;
   }
 
   // initialize map if needed
-  if (mappings.empty()) {
+  /*if (mappings.empty()) {
     mappings.push_back(new bindSet("Default"));
     curmap=mappings[0];
-    // enable to test.
-    /*
-    curmap->keybinds[KEY_A].doModify=true;
-    */
-  }
+  }*/
   return true;
 }
 
@@ -174,6 +173,15 @@ void* devThread(void* dev) {
 }
 
 bool Device::activate() {
+  for (int i=0; i<fds; i++) {
+    imLogD("opening device %s for remapping\n",path[i].c_str());
+    fd[i]=open(path[i].c_str(),O_RDONLY);
+    if (fd[i]<0) {
+      imLogW("couldn't open device path %s: %s\n",path[i].c_str(),strerror(errno));
+      return false;
+    }
+  }
+  
   uinputfd=open("/dev/uinput",O_RDWR);
   if (uinputfd<0) {
     imLogW("couldn't open /dev/uinput for device %s: %s\n",name.c_str(),strerror(errno));
@@ -244,6 +252,9 @@ bool Device::deactivate() {
       if (ioctl(fd[i],EVIOCGRAB,0)<0) {
         imLogE("%s: couldn't ungrab %s: %s\n",name.c_str(),path[i].c_str(),strerror(errno));
       }
+      imLogD("closing fd %d\n",fd[i]);
+      close(fd[i]);
+      fd[i]=-1;
     }
     close(uinputfd);
     uinputfd=-1;
@@ -256,6 +267,22 @@ bool Device::deactivate() {
 
 void Device::newMap(string name) {
   mappings.push_back(new bindSet(name));
+}
+
+void Device::copyMap(string src, string dest) {
+  // hope this works
+  mappings.push_back(new bindSet(*mappings[findMap(src)]));
+  mappings[mappings.size()-1]->name=dest;
+}
+
+void Device::delMap(string name) {
+  bindSet* bs;
+  int mapIndex;
+  mapIndex=findMap(name);
+  if (mapIndex<0) return;
+  bs=mappings[mapIndex];
+  mappings.erase(mappings.begin()+mapIndex);
+  delete bs;
 }
 
 int Device::findMap(string name) {
@@ -322,7 +349,10 @@ void Device::run() {
       smallest=NULL;
       continue;
     }
-    for (int i=0; i<fds; i++) if (FD_ISSET(fd[i],&devfd)) count=read(fd[i],&event,sizeof(struct input_event));
+    for (int i=0; i<fds; i++) if (FD_ISSET(fd[i],&devfd)) {
+      count=read(fd[i],&event,sizeof(struct input_event));
+      break;
+    }
     if (count<0) {
       if (errno==EINTR) { // we got a signal
         break;
@@ -462,6 +492,8 @@ void Device::run() {
     if (ioctl(fd[i],EVIOCGRAB,0)<0) {
       imLogE("%s: couldn't ungrab %s: %s\n",name.c_str(),path[i].c_str(),strerror(errno));
     }
+    close(fd[i]);
+    fd[i]=-1;
   }
   close(uinputfd);
   uinputfd=-1;

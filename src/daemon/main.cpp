@@ -3,6 +3,8 @@
 std::vector<Device*> dev;
 SocketInterface sock;
 
+string configDir;
+
 enum {
   doNothing=0,
   doQuit,
@@ -59,6 +61,22 @@ int main(int argc, char** argv) {
     }
   }
   close(tempuifd);
+  // set config dir
+  if (getenv("HOME")==NULL) {
+    imLogE("i don't know where's your home directory...\n");
+    return 1;
+  }
+  configDir=getenv("HOME");
+  configDir+="/.config/input-modifier";
+  if (access(configDir.c_str(),0)!=F_OK) {
+    imLogI("creating config directory (%s)...\n",configDir.c_str());
+    if (mkdir(configDir.c_str(),0755)<0) {
+      imLogE("error while creating config dir: %s\n",strerror(errno));
+      return 1;
+    }
+  }
+  configDir+="/";
+  
   // scan devices
   if (scanDev(dev)==-2) {
     imLogE("there are devices but I can't open any.\n");
@@ -89,6 +107,7 @@ int main(int argc, char** argv) {
   imLogI("initializing devices...\n");
   for (auto i: dev) {
     i->init();
+    i->loadState(configDir+i->getName()+S(".json"));
     if (i->enabled) {
       i->activate();
     }
@@ -98,19 +117,23 @@ int main(int argc, char** argv) {
     pause();
     if (whatToDo==doQuit) {
       for (auto i: dev) {
-        if (i->active) {
+        if (i->enabled) {
           i->deactivate();
         }
+        i->saveState(configDir+i->getName()+S(".json"));
       }
       break;
     }
     if (whatToDo==doSuspend) {
       for (auto i: dev) {
-        if (i->active) {
+        if (i->enabled) {
           i->deactivate();
         }
+        i->saveState(configDir+i->getName()+S(".json"));
       }
       raise(SIGSTOP);
+      ststpH.sa_handler=stopHandler;
+      sigaction(SIGTSTP,&ststpH,NULL);
       for (auto i: dev) {
         if (i->enabled) {
           i->activate();

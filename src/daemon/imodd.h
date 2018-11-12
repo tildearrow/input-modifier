@@ -163,8 +163,12 @@ class Device {
     bool deactivate();
     bool init();
     void newMap(string name);
+    void delMap(string name);
+    void copyMap(string src, string dest);
     int findMap(string name);
     bool addPath(string p);
+    bool loadState(string path);
+    bool saveState(string path);
     Device(string n, string p);
     Device();
 };

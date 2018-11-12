@@ -30,6 +30,50 @@ Command(cmd_newmap) {
   return 1;
 }
 
+Command(cmd_copymap) {
+  if (args->size()<3) {
+    dprintf(output,"usage: copymap <device> <source> <newname>\n");
+    return 0;
+  }
+  
+  IndexedCommand
+  
+  if (dev[index]->findMap((*args)[2])<0) {
+    dprintf(output,"error: source map does not exist.\n");
+    return 0;
+  }
+  
+  if (dev[index]->findMap((*args)[3])>=0) {
+    dprintf(output,"error: a map with the same destination name already exists.\n");
+    return 0;
+  }
+  
+  dev[index]->copyMap((*args)[2],(*args)[3]);
+  return 1;
+}
+
+Command(cmd_delmap) {
+  if (args->size()<3) {
+    dprintf(output,"usage: delmap <device> <name>\n");
+    return 0;
+  }
+  
+  IndexedCommand
+  
+  if (dev[index]->findMap((*args)[2])<0) {
+    dprintf(output,"error: map does not exist.\n");
+    return 0;
+  }
+  
+  if (dev[index]->mappings.size()<=1) {
+    dprintf(output,"error: there must be at least 1 mapping.\n");
+    return 0;
+  }
+  
+  dev[index]->delMap((*args)[2]);
+  return 1;
+}
+
 Command(cmd_listmaps) {
   if (args->size()<2) {
     dprintf(output,"usage: listmaps <device>\n");
@@ -566,7 +610,7 @@ Command(cmd_disable) {
   }
 
   dev[index]->deactivate();
-  dev[index]->enabled=true;
+  dev[index]->enabled=false;
   return 1;
 }
 
@@ -607,9 +651,9 @@ const AvailCommands cmds[]={
   /*
   {"showsettings", cmd_showsettings},
   {"settings", cmd_settings},*/
-  {"newmap", cmd_newmap},/*
+  {"newmap", cmd_newmap},
   {"copymap", cmd_copymap},
-  {"delmap", cmd_delmap},
+  {"delmap", cmd_delmap},/*
   {"switchmap", cmd_switchmap},
   {"newmacro", cmd_newmacro},
   {"copymacro", cmd_copymacro},
