@@ -51,7 +51,7 @@ Ready.
 
 this is pretty much unusable in a *real crazy* environment as of now, but otherwise it works.
 
-- switching between mappings. for 1.0.1
+- shifting mappings. for 1.0.1
 
 - macros.
 
@@ -69,5 +69,13 @@ this is pretty much unusable in a *real crazy* environment as of now, but otherw
 
 - changing the weird devices setting.
   - I will talk about this later
+
+- ignoring non-input devices such as the Firefly or Polaris.
+
+- implement relconst.
+
+- fix pressing non-bit-set keys.
+
+- implement binds for relative and switch events.
 
 - add feature here.
