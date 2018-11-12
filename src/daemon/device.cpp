@@ -300,7 +300,7 @@ void Device::run() {
   struct sigaction chldH;
   activeTurbo* smallest;
   fd_set devfd;
-  int amount, count;
+  int amount, count, found;
   threadRunning=true;
   syncev.type=EV_SYN;
   syncev.code=0;
@@ -450,7 +450,13 @@ void Device::run() {
                   }
                   delete[] portedArgs;
                   break;
-                case actSwitchMap: // TODO
+                case actSwitchMap:
+                  if (event.value==1) {
+                    found=findMap(i.command);
+                    if (found>=0) {
+                      curmap=mappings[found];
+                    }
+                  }
                   break;
                 case actShiftMap: // TODO
                   break;

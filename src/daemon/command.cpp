@@ -74,6 +74,24 @@ Command(cmd_delmap) {
   return 1;
 }
 
+Command(cmd_switchmap) {
+  if (args->size()<3) {
+    dprintf(output,"usage: switchmap <device> <name>\n");
+    return 0;
+  }
+  
+  IndexedCommand
+  
+  if (dev[index]->findMap((*args)[2])<0) {
+    dprintf(output,"error: map does not exist.\n");
+    return 0;
+  }
+  
+  // I think
+  dev[index]->curmap=dev[index]->mappings[dev[index]->findMap((*args)[2])];
+  return 1;
+}
+
 Command(cmd_listmaps) {
   if (args->size()<2) {
     dprintf(output,"usage: listmaps <device>\n");
@@ -653,8 +671,9 @@ const AvailCommands cmds[]={
   {"settings", cmd_settings},*/
   {"newmap", cmd_newmap},
   {"copymap", cmd_copymap},
-  {"delmap", cmd_delmap},/*
+  {"delmap", cmd_delmap},
   {"switchmap", cmd_switchmap},
+/*
   {"newmacro", cmd_newmacro},
   {"copymacro", cmd_copymacro},
   {"delmacro", cmd_delmacro},
