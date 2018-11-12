@@ -33,7 +33,7 @@ typedef std::string string;
 
 #define logLevel 3
 
-#define IMOD_VERSION "0.9"
+#define IMOD_VERSION "1.0"
 
 int imLogD(const char* format, ...);
 int imLogI(const char* format, ...);
