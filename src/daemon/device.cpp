@@ -369,7 +369,7 @@ void Device::run() {
           if (mapStack[i].code==event.code) {
             // unshift
             curmap=mapStack[i].map;
-            imLogD("going to map %s\n",curmap->name);
+            imLogD("going to map %s\n",curmap->name.c_str());
             mapStack.erase(mapStack.begin()+i,mapStack.end()-1);
           }
         }
@@ -476,7 +476,7 @@ void Device::run() {
                     if (found>=0) {
                       mapStack.push_back(mapStackElement(curmap,event.code));
                       curmap=mappings[found];
-                      imLogD("shifting to map %s\n",curmap->name);
+                      imLogD("shifting to map %s\n",curmap->name.c_str());
                     }
                   }
                   break;
