@@ -363,6 +363,18 @@ void Device::run() {
     } 
     imLogD("%s: %d %d %d\n",name.c_str(),event.type,event.code,event.value);
     // EVENT REWIRING BEGIN //
+    if (!mapStack.empty()) {
+      if (event.type==EV_KEY && event.value==0) {
+      for (size_t i=0; i<mapStack.size(); i++) {
+          if (mapStack[i].code==event.code) {
+            // unshift
+            curmap=mapStack[i].map;
+            imLogD("going to map %s\n",curmap->name);
+            mapStack.erase(mapStack.begin()+i,mapStack.end()-1);
+          }
+        }
+      }
+    }
     if (curmap==NULL) {
       wire=event;
       write(uinputfd,&wire,sizeof(struct input_event));
@@ -458,7 +470,15 @@ void Device::run() {
                     }
                   }
                   break;
-                case actShiftMap: // TODO
+                case actShiftMap:
+                  if (event.value==1) {
+                    found=findMap(i.command);
+                    if (found>=0) {
+                      mapStack.push_back(mapStackElement(curmap,event.code));
+                      curmap=mappings[found];
+                      imLogD("shifting to map %s\n",curmap->name);
+                    }
+                  }
                   break;
                 default:
                   imLogW("unknown/unimplemented action %d...\n",i.type);

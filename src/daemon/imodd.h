@@ -33,7 +33,7 @@ typedef std::string string;
 #define LOGLEVEL_INFO 2
 #define LOGLEVEL_DEBUG 3
 
-#define logLevel 2
+#define logLevel 3
 
 #define IMOD_VERSION "1.0"
 
@@ -153,6 +153,15 @@ class Device {
 
   std::vector<activeTurbo> runTurbo;
 
+  struct mapStackElement {
+    bindSet* map;
+    int code;
+    mapStackElement(bindSet* m, int c): map(m), code(c) {}
+  };
+
+  // not a true stack
+  std::vector<mapStackElement> mapStack;
+
   struct timespec timeout;
   public:
     bool active, enabled;
@@ -216,6 +225,6 @@ class DeviceListener {
   std::queue<PlugEvent> events;
   public:
     bool init();
-}
+};
 
 int scanDev(std::vector<Device*>& populate);
