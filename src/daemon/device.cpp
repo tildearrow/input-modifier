@@ -41,6 +41,15 @@ string Device::getName() {
   return name;
 }
 
+string Device::getSaneName() {
+  string ret;
+  size_t pos;
+  ret=name;
+  while ((pos=ret.find(' '))!=string::npos) ret[pos]='-';
+  while ((pos=ret.find('/'))!=string::npos) ret[pos]='_';
+  return ret;
+}
+
 /*
 string Device::getPath() {
   return path;

@@ -169,6 +169,7 @@ class Device {
     bindSet* curmap;
     
     string getName();
+    string getSaneName();
     void run();
     bool activate();
     bool deactivate();

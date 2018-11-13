@@ -176,6 +176,7 @@ bool Device::saveState(string path) {
   if (f.is_open()) {
     f<<data;
   } else {
+    imLogE("couldn't save state: %s\n",strerror(errno));
     return false;
   }
   
