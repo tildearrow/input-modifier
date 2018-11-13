@@ -178,8 +178,11 @@ Command(cmd_addaction) {
   try {
     eventVal=stoi((*args)[eventArg]);
   } catch (std::exception& err) {
-    dprintf(output,"error: invalid event number.\n");
-    return 0;
+    // maybe this is a name
+    if ((eventVal=findKey((*args)[eventArg].c_str()))==-1) {
+      dprintf(output,"error: invalid event number.\n");
+      return 0;
+    }
   }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
@@ -200,8 +203,10 @@ Command(cmd_addaction) {
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
-      dprintf(output,"error: invalid key code.\n");
-      return 0;
+      if ((intVal=findKey((*args)[eventArg+2].c_str()))==-1) {
+        dprintf(output,"error: invalid key code.\n");
+        return 0;
+      }
     }
     if (intVal<0 || intVal>KEY_CNT) {
       dprintf(output,"error: keycode out of range.\n");
@@ -238,8 +243,10 @@ Command(cmd_addaction) {
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
-      dprintf(output,"error: invalid key code.\n");
-      return 0;
+      if ((intVal=findKey((*args)[eventArg+2].c_str()))==-1) {
+        dprintf(output,"error: invalid key code.\n");
+        return 0;
+      }
     }
     if (intVal<0 || intVal>KEY_CNT) {
       dprintf(output,"error: keycode out of range.\n");
@@ -256,8 +263,10 @@ Command(cmd_addaction) {
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
-      dprintf(output,"error: invalid relative code.\n");
-      return 0;
+      if ((intVal=findRel((*args)[eventArg+2].c_str()))==-1) {
+        dprintf(output,"error: invalid relative code.\n");
+        return 0;
+      }
     }
     if (intVal<0 || intVal>REL_CNT) {
       dprintf(output,"error: relative event code out of range.\n");
@@ -280,8 +289,10 @@ Command(cmd_addaction) {
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
-      dprintf(output,"error: invalid relative code.\n");
-      return 0;
+      if ((intVal=findRel((*args)[eventArg+2].c_str()))==-1) {
+        dprintf(output,"error: invalid relative code.\n");
+        return 0;
+      }
     }
     if (intVal<0 || intVal>REL_CNT) {
       dprintf(output,"error: relative event code out of range.\n");
@@ -314,8 +325,10 @@ Command(cmd_addaction) {
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
-      dprintf(output,"error: invalid absolute code.\n");
-      return 0;
+      if ((intVal=findAbs((*args)[eventArg+2].c_str()))==-1) {
+        dprintf(output,"error: invalid absolute code.\n");
+        return 0;
+      }
     }
     if (intVal<0 || intVal>ABS_CNT) {
       dprintf(output,"error: absolute event code out of range.\n");
@@ -408,8 +421,10 @@ Command(cmd_delaction) {
   try { 
     eventVal=stoi((*args)[eventArg]);
   } catch (std::exception& err) {
-    dprintf(output,"error: invalid event number.\n");
-    return 0;
+    if ((eventVal=findKey((*args)[eventArg].c_str()))==-1) {
+      dprintf(output,"error: invalid event number.\n");
+      return 0;
+    }
   }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
@@ -474,8 +489,10 @@ Command(cmd_clearactions) {
   try {
     eventVal=stoi((*args)[eventArg]);
   } catch (std::exception& err) {
-    dprintf(output,"error: invalid event number.\n");
-    return 0;
+    if ((eventVal=findKey((*args)[eventArg].c_str()))==-1) {
+      dprintf(output,"error: invalid event number.\n");
+      return 0;
+    }
   }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
@@ -527,8 +544,10 @@ Command(cmd_copyactions) {
   try { 
     eventVal=stoi((*args)[eventArg]);
   } catch (std::exception& err) {
-    dprintf(output,"error: invalid event number.\n");
-    return 0;
+    if ((eventVal=findKey((*args)[eventArg].c_str()))==-1) {
+      dprintf(output,"error: invalid event number.\n");
+      return 0;
+    }
   }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
@@ -538,8 +557,10 @@ Command(cmd_copyactions) {
   try {
     destVal=stoi((*args)[eventArg+1]);
   } catch (std::exception& err) {
-    dprintf(output,"error: invalid destination event number.\n");
-    return 0;
+    if ((destVal=findKey((*args)[eventArg+1].c_str()))==-1) {
+      dprintf(output,"error: invalid destination event number.\n");
+      return 0;
+    }
   }
   if (destVal<0 || destVal>KEY_CNT) {
     dprintf(output,"error: destination event number out of range.\n");
@@ -596,8 +617,10 @@ Command(cmd_listactions) {
   try {
     eventVal=stoi((*args)[eventArg]);
   } catch (std::exception& err) {
-    dprintf(output,"error: invalid event number.\n");
-    return 0;
+    if ((eventVal=findKey((*args)[eventArg].c_str()))==-1) {
+      dprintf(output,"error: invalid event number.\n");
+      return 0;
+    }
   }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");

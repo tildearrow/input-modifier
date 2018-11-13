@@ -1,4 +1,5 @@
 #include "names.h"
+#include <string.h>
 
 const char* evnames[EV_CNT]={
   [0x00]="EV_SYN",
@@ -645,3 +646,53 @@ const char* swnames[SW_CNT]={
   [0x0e]="SW_MUTE_DEVICE",  
   [0x0f]="SW_PEN_INSERTED",  
 };
+
+int findEv(const char* name) {
+  for (int i=0; i<EV_CNT; i++) {
+    if (evnames[i]==NULL) continue;
+    if (strcmp(evnames[i],name)==0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int findKey(const char* name) {
+  for (int i=0; i<KEY_CNT; i++) {
+    if (keynames[i]==NULL) continue;
+    if (strcmp(keynames[i],name)==0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int findRel(const char* name) {
+  for (int i=0; i<REL_CNT; i++) {
+    if (relnames[i]==NULL) continue;
+    if (strcmp(relnames[i],name)==0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int findAbs(const char* name) {
+  for (int i=0; i<ABS_CNT; i++) {
+    if (absnames[i]==NULL) continue;
+    if (strcmp(absnames[i],name)==0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int findSwitch(const char* name) {
+  for (int i=0; i<SW_CNT; i++) {
+    if (swnames[i]==NULL) continue;
+    if (strcmp(swnames[i],name)==0) {
+      return i;
+    }
+  }
+  return -1;
+}
