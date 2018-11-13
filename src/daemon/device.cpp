@@ -1,5 +1,17 @@
 #include "imodd.h"
 
+#define ReleaseKeys() \
+  for (int keyi=0; keyi<KEY_CNT; keyi++) { \
+    if (pressedKeys[keyi]) { \
+      wire.type=EV_KEY; \
+      wire.code=keyi; \
+      wire.value=0; \
+      write(uinputfd,&wire,sizeof(struct input_event)); \
+      write(uinputfd,&syncev,sizeof(struct input_event)); \
+      pressedKeys[keyi]=false; \
+    } \
+  }
+
 Device::Device():
   fds(0),
   isBulkDevice(false),
@@ -252,6 +264,11 @@ bool Device::activate() {
 }
 
 bool Device::deactivate() {
+  struct input_event syncev;
+  struct input_event wire;
+  syncev.type=EV_SYN;
+  syncev.code=0;
+  syncev.value=0;
   if (active) {
     imLogD("killing.\n");
     pthread_cancel(inThread);
@@ -265,6 +282,7 @@ bool Device::deactivate() {
       close(fd[i]);
       fd[i]=-1;
     }
+    ReleaseKeys();
     close(uinputfd);
     uinputfd=-1;
     imLogI("%s: going down.\n",name.c_str());
@@ -385,6 +403,7 @@ void Device::run() {
       }
     }
     if (curmap==NULL) {
+      if (event.type==EV_KEY && event.value<2) pressedKeys[event.code]=event.value;
       wire=event;
       write(uinputfd,&wire,sizeof(struct input_event));
     } else {
@@ -394,6 +413,7 @@ void Device::run() {
             for (auto i: curmap->keybinds[event.code].actions) {
               switch (i.type) {
                 case actKey:
+                  if (event.value<2) pressedKeys[i.code]=event.value;
                   wire.type=EV_KEY;
                   wire.code=i.code;
                   wire.value=event.value;
@@ -401,6 +421,7 @@ void Device::run() {
                   write(uinputfd,&syncev,sizeof(struct input_event));
                   break;
                 case actTurbo:
+                  if (event.value<2) pressedKeys[i.code]=event.value;
                   if (event.value==1) {
                     imLogD("running turbo\n");
                     runTurbo.push_back(activeTurbo(i.timeOn,i.timeOff,curTime(CLOCK_MONOTONIC)+i.timeOn,i.code));
@@ -475,6 +496,7 @@ void Device::run() {
                   if (event.value==1) {
                     found=findMap(i.command);
                     if (found>=0) {
+                      ReleaseKeys();
                       curmap=mappings[found];
                     }
                   }
@@ -484,6 +506,7 @@ void Device::run() {
                     found=findMap(i.command);
                     if (found>=0) {
                       mapStack.push_back(mapStackElement(curmap,event.code));
+                      ReleaseKeys();
                       curmap=mappings[found];
                       imLogD("shifting to map %s\n",curmap->name.c_str());
                     }
@@ -495,6 +518,7 @@ void Device::run() {
               }
             }
           } else {
+            if (event.value<2) pressedKeys[event.code]=event.value;
             wire=event;
             write(uinputfd,&wire,sizeof(struct input_event));
           }
@@ -530,6 +554,7 @@ void Device::run() {
     close(fd[i]);
     fd[i]=-1;
   }
+  ReleaseKeys();
   close(uinputfd);
   uinputfd=-1;
   imLogI("%s: going down.\n",name.c_str());

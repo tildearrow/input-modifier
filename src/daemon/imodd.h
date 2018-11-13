@@ -153,6 +153,7 @@ class Device {
   std::bitset<SND_CNT> sndcaps;
 
   std::vector<activeTurbo> runTurbo;
+  std::bitset<KEY_CNT> pressedKeys;
 
   struct mapStackElement {
     bindSet* map;
