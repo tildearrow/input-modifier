@@ -8,7 +8,12 @@ extern std::vector<Device*> dev;
     dprintf(output,"error: no devices.\n"); \
     return 0; \
   } \
-  index=stoul((*args)[1]); \
+  try { \
+    index=stoul((*args)[1]); \
+  } catch (std::exception& err) { \
+    dprintf(output,"error: invalid number.\n"); \
+    return 0; \
+  } \
   if (index>=dev.size()) { \
     dprintf(output,"error: device index out of range (0-%lu).\n",dev.size()-1); \
     return 0; \
