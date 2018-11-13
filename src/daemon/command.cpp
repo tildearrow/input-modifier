@@ -557,7 +557,7 @@ Command(cmd_listactions) {
 Command(cmd_listbinds) {
   bindSet* mapOp;
   if (args->size()<2) {
-    dprintf(output,"usage: listactions <device> [keymap]\n");
+    dprintf(output,"usage: listbinds <device> [keymap]\n");
     return 0;
   }
 
