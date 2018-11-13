@@ -51,8 +51,6 @@ Ready.
 
 this is pretty much unusable in a *real crazy* environment as of now, but otherwise it works.
 
-- shifting mappings. for 1.0.1
-
 - macros.
 
 - profiles.
