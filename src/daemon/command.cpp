@@ -175,7 +175,12 @@ Command(cmd_addaction) {
     return 0;
   }
   
-  eventVal=stoi((*args)[eventArg]);
+  try {
+    eventVal=stoi((*args)[eventArg]);
+  } catch (std::exception& err) {
+    dprintf(output,"error: invalid event number.\n");
+    return 0;
+  }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
     return 0;
@@ -192,7 +197,12 @@ Command(cmd_addaction) {
       return 0;
     }
     mapOp->keybinds[eventVal].doModify=true;
-    intVal=stoi((*args)[eventArg+2]);
+    try {
+      intVal=stoi((*args)[eventArg+2]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid key code.\n");
+      return 0;
+    }
     if (intVal<0 || intVal>KEY_CNT) {
       dprintf(output,"error: keycode out of range.\n");
       return 0;
@@ -205,17 +215,32 @@ Command(cmd_addaction) {
       return 0;
     }
     mapOp->keybinds[eventVal].doModify=true;
-    onTime=stots((*args)[eventArg+3]);
+    try {
+      onTime=stots((*args)[eventArg+3]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid on time.\n");
+      return 0;
+    }
     if (onTime<mkts(0,0)) {
       dprintf(output,"error: on time can't be negative.\n");
       return 0;
     }
-    offTime=stots((*args)[eventArg+4]);
+    try {
+      offTime=stots((*args)[eventArg+4]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid off time.\n");
+      return 0;
+    }
     if (offTime<mkts(0,0)) {
       dprintf(output,"error: off time can't be negative.\n");
       return 0;
     }
-    intVal=stoi((*args)[eventArg+2]);
+    try {
+      intVal=stoi((*args)[eventArg+2]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid key code.\n");
+      return 0;
+    }
     if (intVal<0 || intVal>KEY_CNT) {
       dprintf(output,"error: keycode out of range.\n");
       return 0;
@@ -228,12 +253,22 @@ Command(cmd_addaction) {
       return 0;
     }
     mapOp->keybinds[eventVal].doModify=true;
-    intVal=stoi((*args)[eventArg+2]);
+    try {
+      intVal=stoi((*args)[eventArg+2]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid relative code.\n");
+      return 0;
+    }
     if (intVal<0 || intVal>REL_CNT) {
       dprintf(output,"error: relative event code out of range.\n");
       return 0;
     }
-    intVal1=stoi((*args)[eventArg+3]);
+    try {
+      intVal1=stoi((*args)[eventArg+3]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid value.\n");
+      return 0;
+    }
     mapOp->keybinds[eventVal].actions.push_back(Action(actRel,intVal,intVal1));
   } else if ((*args)[eventArg+1]==S("relconst")) {
     // relative constant (args: 3)
@@ -242,13 +277,28 @@ Command(cmd_addaction) {
       return 0;
     }
     mapOp->keybinds[eventVal].doModify=true;
-    intVal=stoi((*args)[eventArg+2]);
+    try {
+      intVal=stoi((*args)[eventArg+2]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid relative code.\n");
+      return 0;
+    }
     if (intVal<0 || intVal>REL_CNT) {
       dprintf(output,"error: relative event code out of range.\n");
       return 0;
     }
-    intVal1=stoi((*args)[eventArg+3]);
-    onTime=stots((*args)[eventArg+4]);
+    try {
+      intVal1=stoi((*args)[eventArg+3]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid value.\n");
+      return 0;
+    }
+    try {
+      onTime=stots((*args)[eventArg+4]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid delay time.\n");
+      return 0;
+    }
     if (onTime<mkts(0,0)) {
       dprintf(output,"error: time can't be negative.\n");
       return 0;
@@ -261,12 +311,22 @@ Command(cmd_addaction) {
       return 0;
     }
     mapOp->keybinds[eventVal].doModify=true;
-    intVal=stoi((*args)[eventArg+2]);
+    try {
+      intVal=stoi((*args)[eventArg+2]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid absolute code.\n");
+      return 0;
+    }
     if (intVal<0 || intVal>ABS_CNT) {
       dprintf(output,"error: absolute event code out of range.\n");
       return 0;
     }
-    intVal1=stoi((*args)[eventArg+3]);
+    try {
+      intVal1=stoi((*args)[eventArg+3]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid value.\n");
+      return 0;
+    }
     mapOp->keybinds[eventVal].actions.push_back(Action(actAbs,intVal,intVal1));
   } else if ((*args)[eventArg+1]==S("execute")) {
     // execute (args: at least 1)
@@ -344,8 +404,13 @@ Command(cmd_delaction) {
     dprintf(output,"error: no current map.\n");
     return 0;
   }
-  
-  eventVal=stoi((*args)[eventArg]);
+ 
+  try { 
+    eventVal=stoi((*args)[eventArg]);
+  } catch (std::exception& err) {
+    dprintf(output,"error: invalid event number.\n");
+    return 0;
+  }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
     return 0;
@@ -356,7 +421,12 @@ Command(cmd_delaction) {
     return 0;
   }
 
-  actionVal=stoi((*args)[eventArg+1]);
+  try {
+    actionVal=stoi((*args)[eventArg+1]);
+  } catch (std::exception& err) {
+    dprintf(output,"error: invalid action index.\n");
+    return 0;
+  }
   if (actionVal<0 || (size_t)actionVal>=mapOp->keybinds[eventVal].actions.size()) {
     dprintf(output,"error: action index out of range (0-%lu).\n",mapOp->keybinds[eventVal].actions.size()-1);
     return 0;
@@ -401,7 +471,12 @@ Command(cmd_clearactions) {
     return 0;
   }
   
-  eventVal=stoi((*args)[eventArg]);
+  try {
+    eventVal=stoi((*args)[eventArg]);
+  } catch (std::exception& err) {
+    dprintf(output,"error: invalid event number.\n");
+    return 0;
+  }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
     return 0;
@@ -448,14 +523,24 @@ Command(cmd_copyactions) {
     dprintf(output,"error: no current map.\n");
     return 0;
   }
-  
-  eventVal=stoi((*args)[eventArg]);
+ 
+  try { 
+    eventVal=stoi((*args)[eventArg]);
+  } catch (std::exception& err) {
+    dprintf(output,"error: invalid event number.\n");
+    return 0;
+  }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
     return 0;
   }
-  
-  destVal=stoi((*args)[eventArg+1]);
+ 
+  try {
+    destVal=stoi((*args)[eventArg+1]);
+  } catch (std::exception& err) {
+    dprintf(output,"error: invalid destination event number.\n");
+    return 0;
+  }
   if (destVal<0 || destVal>KEY_CNT) {
     dprintf(output,"error: destination event number out of range.\n");
     return 0;
@@ -508,7 +593,12 @@ Command(cmd_listactions) {
     return 0;
   }
   
-  eventVal=stoi((*args)[eventArg]);
+  try {
+    eventVal=stoi((*args)[eventArg]);
+  } catch (std::exception& err) {
+    dprintf(output,"error: invalid event number.\n");
+    return 0;
+  }
   if (eventVal<0 || eventVal>KEY_CNT) {
     dprintf(output,"error: event number out of range.\n");
     return 0;
@@ -659,6 +749,24 @@ Command(cmd_version) {
   "this may change in a future version.\n");
   return 1;
 }
+
+/*
+Command(cmd_tstest) {
+  struct timespec ts;
+  if (args->size()<2) {
+    dprintf(output,"number\n");
+    return 0;
+  }
+  try {
+    ts=stots((*args)[1]);
+  } catch (std::exception& err) {
+    dprintf(output,"error in your input.\n");
+    return 0;
+  }
+  dprintf(output,"sec: %ld, nsec %ld\n",ts.tv_sec,ts.tv_nsec);
+  return 1;
+}
+*/
 
 const AvailCommands cmds[]={
   {"addaction", cmd_addaction},

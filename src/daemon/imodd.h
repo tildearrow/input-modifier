@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <stdexcept>
 #include <string>
 #include <bitset>
 #include <vector>

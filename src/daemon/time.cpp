@@ -20,12 +20,15 @@ struct timespec stots(string s) {
   string upel, lowel;
   curStat=false;
   for (size_t i=0; i<s.length(); i++) {
-    if (s[i]=='.') {
+    if (s[i]=='.' || s[i]==',') {
       if (curStat) {
-        return mkts(0,0);
+        throw std::invalid_argument("stots");
       }
       curStat=true;
       continue;
+    }
+    if (s[i]<'0' || s[i]>'9') {
+      throw std::invalid_argument("stots");
     }
     if (curStat) {
       if (lowel.length()<10) {
@@ -36,8 +39,16 @@ struct timespec stots(string s) {
     }
   }
   if (lowel.empty()) lowel="0";
-  upper=stoi(upel);
-  lower=stoi(lowel)*pow10[9-lowel.length()];
+  try {
+    upper=stoi(upel);
+  } catch (std::exception& err) {
+    throw err;
+  }
+  try {
+    lower=stoi(lowel)*pow10[9-lowel.length()];
+  } catch (std::exception& err) {
+    throw err;
+  }
   ret.tv_sec=upper;
   ret.tv_nsec=lower;
   return ret;
