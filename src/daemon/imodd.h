@@ -224,10 +224,12 @@ struct PlugEvent {
 };
 
 class DeviceListener {
-  int fd;
+  int fd, wd;
   std::queue<PlugEvent> events;
+  pthread_t thread;
   public:
     bool init();
+    void run();
 };
 
 int scanDev(std::vector<Device*>& populate);

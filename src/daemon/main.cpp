@@ -3,6 +3,8 @@
 std::vector<Device*> dev;
 SocketInterface sock;
 
+DeviceListener* list;
+
 string configDir;
 
 enum {
@@ -88,6 +90,12 @@ int main(int argc, char** argv) {
       return 1;
     }
     imLogE("sudo usermod -a -G input %s\n",getenv("USER"));
+    return 1;
+  }
+  // initialize device listener
+  list=new DeviceListener;
+  if (!list->init()) {
+    imLogE("giving up.\n");
     return 1;
   }
   // set signal handlers

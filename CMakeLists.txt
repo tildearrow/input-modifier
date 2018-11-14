@@ -8,6 +8,7 @@ src/daemon/log.cpp
 src/daemon/time.cpp
 src/daemon/names.c
 src/daemon/scanner.cpp
+src/daemon/listener.cpp
 src/daemon/device.cpp
 src/daemon/state.cpp
 src/daemon/command.cpp
