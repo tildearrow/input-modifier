@@ -727,8 +727,12 @@ Command(cmd_enable) {
     return 0;
   }
 
-  dev[index]->activate();
-  dev[index]->enabled=true;
+  if (dev[index]->activate()) {
+    dev[index]->enabled=true;
+  } else {
+    dprintf(output,"error: while activating device... :(\n");
+    return 0;
+  }
   return 1;
 }
 
@@ -745,7 +749,11 @@ Command(cmd_disable) {
     return 0;
   }
 
-  dev[index]->deactivate();
+  if (!dev[index]->deactivate()) {
+    dprintf(output,"error: while deactivating :(\n");
+    dev[index]->enabled=false;
+    return 0;
+  }
   dev[index]->enabled=false;
   return 1;
 }
