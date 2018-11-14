@@ -327,7 +327,7 @@ void Device::run() {
   struct sigaction chldH;
   activeTurbo* smallest;
   fd_set devfd;
-  int amount, count, found;
+  int amount, count, found, lastread;
   threadRunning=true;
   syncev.type=EV_SYN;
   syncev.code=0;
@@ -378,6 +378,7 @@ void Device::run() {
     }
     for (int i=0; i<fds; i++) if (FD_ISSET(fd[i],&devfd)) {
       count=read(fd[i],&event,sizeof(struct input_event));
+      lastread=i;
       break;
     }
     if (count<0) {
@@ -385,7 +386,23 @@ void Device::run() {
         break;
       } else {
         imLogW("read error: %s\n",strerror(errno));
-        break;
+        // remove this file descriptor
+        close(fd[lastread]);
+        fd[lastread]=-1;
+        path[lastread]="";
+        if (lastread!=fds-1) {
+          // push down the other descriptors
+          for (int i=lastread+1; i<fds; i++) {
+            fd[i]=fd[i-1];
+            path[i]=path[i-1];
+          }
+        }
+        fds--;
+        // if there are no file descriptors left we need to quit
+        if (fds==0) {
+          break;
+        }
+        continue;
       }
     } 
     imLogD("%s: %d %d %d\n",name.c_str(),event.type,event.code,event.value);
@@ -546,6 +563,7 @@ void Device::run() {
     }
     // EVENT REWIRING END //
   }
+  // quit if we somehow get out of the loop
   imLogD("%s: ungrabbing.\n",name.c_str());
   for (int i=0; i<fds; i++) {
     if (ioctl(fd[i],EVIOCGRAB,0)<0) {

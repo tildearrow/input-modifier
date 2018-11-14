@@ -124,6 +124,7 @@ int main(int argc, char** argv) {
   while (1) {
     pause();
     if (whatToDo==doQuit) {
+      list->deactivate();
       for (auto i: dev) {
         if (i->enabled) {
           i->deactivate();

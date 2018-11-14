@@ -34,7 +34,7 @@ typedef std::string string;
 #define LOGLEVEL_INFO 2
 #define LOGLEVEL_DEBUG 3
 
-#define logLevel 2
+#define logLevel 3
 
 #define IMOD_VERSION "1.0.1"
 
@@ -229,6 +229,7 @@ class DeviceListener {
   pthread_t thread;
   public:
     bool init();
+    bool deactivate();
     void run();
 };
 
