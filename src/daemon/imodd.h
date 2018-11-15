@@ -190,6 +190,8 @@ class Device {
     bool switchProfile(string name);
     bool loadState(string path);
     bool saveState(string path);
+    bool loadProfile(string path);
+    bool saveProfile(string path);
     Device(string n, string p);
     Device();
 };
