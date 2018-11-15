@@ -138,6 +138,9 @@ class Device {
   struct input_id info;
   struct input_absinfo absinfo[ABS_CNT];
   int uinputfd;
+  // we won't be switching to the next version of the
+  // uinput interface until Ubuntu 14.04 stops being
+  // supported...
   struct uinput_user_dev uiconfig;
   bool threadRunning;
   pthread_t inThread;
@@ -206,6 +209,10 @@ class SocketInterface {
       pthread_t dataThread;
       int fd;
       socklen_t size;
+      Connection(): dataThread(-1), fd(-1), size(0) {
+        addr.family=AF_UNIX;
+        memset(addr.path,0,PATH_MAX);
+      }
     };
   private:
   std::vector<Connection> conns;

@@ -44,6 +44,8 @@ void DeviceListener::run() {
   fd_set fdset;
 
   doTimeout=false;
+  nextSettle=curTime(CLOCK_MONOTONIC);
+  ctime=mkts(0,0);
 
   while (1) {
     FD_ZERO(&fdset);

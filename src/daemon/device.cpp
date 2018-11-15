@@ -260,6 +260,7 @@ bool Device::activate() {
       return 1;
     }
   }
+  memset(&uiconfig,0,sizeof(struct uinput_user_dev));
   strncpy(uiconfig.name,"(mapped) ",UINPUT_MAX_NAME_SIZE);
   strncat(uiconfig.name,name.c_str(),UINPUT_MAX_NAME_SIZE);
   uiconfig.id.bustype=BUS_VIRTUAL;
@@ -300,9 +301,13 @@ bool Device::activate() {
 bool Device::deactivate() {
   struct input_event syncev;
   struct input_event wire;
+  syncev.time.tv_sec=0;
+  syncev.time.tv_usec=0;
   syncev.type=EV_SYN;
   syncev.code=0;
   syncev.value=0;
+  wire.time.tv_sec=0;
+  wire.time.tv_usec=0;
   if (active) {
     imLogD("killing.\n");
     pthread_cancel(inThread);
@@ -371,7 +376,7 @@ void Device::run() {
   syncev.code=0;
   syncev.value=0;
   for (int i=0; i<fds; i++) {
-    if (ioctl(fd[i],EVIOCGRAB,1)<0) {
+    if (ioctl(fd[i],EVIOCGRAB,&ctime)<0) {
       imLogE("%s: couldn't grab %s: %s\n",name.c_str(),path[i].c_str(),strerror(errno));
     }
   }

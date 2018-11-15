@@ -38,6 +38,10 @@ void childHandler(int data) {
 int main(int argc, char** argv) {
   struct sigaction sintH, stermH, ststpH, chldH;
   int tempuifd;
+  memset(&sintH,0,sizeof(struct sigaction));
+  memset(&stermH,0,sizeof(struct sigaction));
+  memset(&ststpH,0,sizeof(struct sigaction));
+  memset(&chldH,0,sizeof(struct sigaction));
   // check permissions of uinput
   tempuifd=open("/dev/uinput",O_RDWR);
   if (tempuifd<0) {
