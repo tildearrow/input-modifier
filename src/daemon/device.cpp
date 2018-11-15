@@ -343,6 +343,10 @@ void Device::delMap(string name) {
   if (mapIndex<0) return;
   bs=mappings[mapIndex];
   mappings.erase(mappings.begin()+mapIndex);
+  if (curmap->name==bs->name) {
+    imLogD("%s: trying to delete the current map. switching...\n",name.c_str());
+    curmap=mappings[0];
+  }
   delete bs;
 }
 
