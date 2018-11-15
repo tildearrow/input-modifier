@@ -155,6 +155,8 @@ class Device {
   std::vector<activeTurbo> runTurbo;
   std::bitset<KEY_CNT> pressedKeys;
 
+  string curProfile;
+
   struct mapStackElement {
     bindSet* map;
     int code;
@@ -182,6 +184,7 @@ class Device {
     int findMap(string name);
     bool addPath(string p);
     int delPath(string p);
+    bool switchProfile(string name);
     bool loadState(string path);
     bool saveState(string path);
     Device(string n, string p);
