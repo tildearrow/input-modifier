@@ -61,8 +61,6 @@ this is pretty much unusable in a *real crazy* environment as of now, but otherw
 
 - proper packages.
 
-- hotplug.
-
 - passing environment variables to execute.
 
 - changing the weird devices setting.
