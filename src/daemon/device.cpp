@@ -56,12 +56,8 @@ int Device::delPath(string p) {
     if (path[i]==p) {
       if (active) {
         // let the input thread handle closing
-        /*
-        path[i]="";
-        close(fd[i]);
-        usleep(20000);
+        imLogE("error: device is enabled and the path hasn't been removed by its thread!\n");
         return 1;
-        */
       } else {
         // handle by ourselves
         // remove this file descriptor
@@ -70,9 +66,9 @@ int Device::delPath(string p) {
         path[i]="";
         if (i!=fds-1) {
           // push down the other descriptors
-          for (int j=i+1; j<fds; j++) {
-            fd[j]=fd[j-1];
-            path[j]=path[j-1];
+          for (int j=i; j<fds-1; j++) {
+            fd[j]=fd[j+1];
+            path[j]=path[j+1];
           }
         }
         fds--;
@@ -430,9 +426,9 @@ void Device::run() {
         path[lastread]="";
         if (lastread!=fds-1) {
           // push down the other descriptors
-          for (int i=lastread+1; i<fds; i++) {
-            fd[i]=fd[i-1];
-            path[i]=path[i-1];
+          for (int i=lastread; i<fds-1; i++) {
+            fd[i]=fd[i+1];
+            path[i]=path[i+1];
           }
         }
         fds--;
