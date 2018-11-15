@@ -166,7 +166,7 @@ class Device {
 
   struct timespec timeout;
   public:
-    bool active, enabled;
+    bool inited, active, enabled;
     std::vector<bindSet*> mappings;
     bindSet* curmap;
     
@@ -181,6 +181,7 @@ class Device {
     void copyMap(string src, string dest);
     int findMap(string name);
     bool addPath(string p);
+    int delPath(string p);
     bool loadState(string path);
     bool saveState(string path);
     Device(string n, string p);
@@ -234,3 +235,4 @@ class DeviceListener {
 };
 
 int scanDev(std::vector<Device*>& populate);
+int processDev(std::vector<Device*>& populate, string name);

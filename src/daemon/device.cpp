@@ -19,6 +19,7 @@ Device::Device():
   phys(""),
   uinputfd(-1),
   inThread(-1),
+  inited(false),
   active(false),
   enabled(false),
   curmap(NULL) {
@@ -34,6 +35,7 @@ Device::Device(string n, string p):
   phys(""),
   uinputfd(-1),
   inThread(-1),
+  inited(false),
   active(false),
   enabled(false),
   curmap(NULL) {
@@ -47,6 +49,41 @@ bool Device::addPath(string p) {
   if (fds>=8) return false;
   path[fds++]=p;
   return true;
+}
+
+int Device::delPath(string p) {
+  for (int i=0; i<fds; i++) {
+    if (path[i]==p) {
+      if (active) {
+        // let the input thread handle closing
+        /*
+        path[i]="";
+        close(fd[i]);
+        usleep(20000);
+        return 1;
+        */
+      } else {
+        // handle by ourselves
+        // remove this file descriptor
+        close(fd[i]);
+        fd[i]=-1;
+        path[i]="";
+        if (i!=fds-1) {
+          // push down the other descriptors
+          for (int j=i+1; j<fds; j++) {
+            fd[j]=fd[j-1];
+            path[j]=path[j-1];
+          }
+        }
+        fds--;
+      }
+    }
+  }
+  if (fds==0) {
+    // request deletion
+    return 2;
+  }
+  return 0;
 }
 
 string Device::getName() {
@@ -185,6 +222,7 @@ bool Device::init() {
     mappings.push_back(new bindSet("Default"));
     curmap=mappings[0];
   }*/
+  inited=true;
   return true;
 }
 

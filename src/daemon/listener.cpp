@@ -1,6 +1,7 @@
 #include "imodd.h"
 
 extern std::vector<Device*> dev;
+extern string configDir;
 
 void* listenThread(void* data) {
   DeviceListener* inst=(DeviceListener*)data;
@@ -35,6 +36,7 @@ void DeviceListener::run() {
   char buf[512];
   char cstr[4096];
   std::vector<string> newDevices;
+  std::vector<string> removedDevices;
   bool doTimeout;
   struct timespec nextSettle, ctime;
   struct inotify_event* event;
@@ -49,9 +51,25 @@ void DeviceListener::run() {
     ctime=nextSettle-curTime(CLOCK_MONOTONIC);
     if (ctime<mkts(0,0)) {
       ctime=mkts(0,0);
-    } 
+    }
     if (pselect(fd+1,&fdset,NULL,NULL,(doTimeout)?(&ctime):NULL,NULL)==0) {
       imLogD("i must sort out\n");
+      // remove removed devices
+      for (auto& i: removedDevices) {
+        for (size_t j=0; j<dev.size(); j++) {
+          if (dev[j]->delPath(S(DEVICE_DIR)+S("/")+i)==2) {
+            if (dev[j]->active) {
+              dev[j]->deactivate();
+            }
+            dev[j]->saveState(configDir+dev[j]->getSaneName()+S(".json"));
+            imLogI("removing device %s...\n",dev[j]->getName().c_str());
+            delete dev[j];
+            dev.erase(dev.begin()+j);
+            j--;
+          }
+        }
+      }
+      removedDevices.clear();
       for (auto& i: newDevices) {
         // check if this is just a mapped device
         tempfd=open((S(DEVICE_DIR)+S("/")+i).c_str(),O_RDONLY);
@@ -65,9 +83,22 @@ void DeviceListener::run() {
           continue;
         }
         imLogD("- %s\n",i.c_str());
+        // process device
+        processDev(dev,i);
       }
       doTimeout=false;
       newDevices.clear();
+      // init new devices
+      for (auto i: dev) {
+        if (!i->inited) {
+          imLogI("initializing device %s...\n",i->getName().c_str());
+          i->init();
+          i->loadState(configDir+i->getSaneName()+S(".json"));
+          if (i->enabled) {
+            i->activate();
+          }
+        }
+      }
       continue;
     }
     len=read(fd,buf,512);
@@ -88,6 +119,7 @@ void DeviceListener::run() {
       }
       if (event->mask&IN_DELETE) {
         imLogD("delete: %s\n",event->name);
+        removedDevices.push_back(event->name);
         for (size_t i=0; i<newDevices.size(); i++) {
           if (newDevices[i]==S(event->name)) {
             newDevices.erase(newDevices.begin()+i);
