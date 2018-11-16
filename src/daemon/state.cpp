@@ -154,6 +154,9 @@ bool Device::saveProfile(string path, string dirpath) {
               break;
             case actDisable:
               break;
+            default:
+              actionPart["type"]="disable";
+              break;
           }
           bindPart["actions"].push_back(actionPart);
         }

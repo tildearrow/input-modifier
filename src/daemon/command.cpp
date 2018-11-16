@@ -668,6 +668,12 @@ Command(cmd_listactions) {
       case actDisable:
         dprintf(output,"%d: disable\n",ic);
         break;
+      case actWait:
+        dprintf(output,"%d: wait %ss\n",ic,tstos(i.timeOn).c_str());
+        break;
+      case actMouseMove:
+        dprintf(output,"%d: mousemove\n",ic);
+        break;
     }
     ic++;
   }
@@ -941,10 +947,56 @@ Command(cmd_newmacro) {
   return 1;
 }
 
+Command(cmd_copymacro) {
+  Macro* src=NULL;
+  Macro* dest;
+  if (args->size()<3) {
+    dprintf(output,"usage: copymacro <src> <dest>\n");
+    return 0;
+  }
+
+  for (auto i: macros) {
+    if (i->name==(*args)[1]) {
+      src=i;
+      break;
+    }
+  }
+  if (src==NULL) {
+    dprintf(output,"error: macro not found.\n");
+    return 0;
+  }
+
+  if ((*args)[1]==(*args)[2]) {
+    dprintf(output,"error: source and destination macro names can't be the same.\n");
+    return 0;
+  }
+  
+  for (auto i: macros) {
+    if (i->name==(*args)[2]) {
+      dprintf(output,"error: a macro with the same name already exists.\n");
+      return 0;
+    }
+  }
+
+  dest=new Macro(*src);
+  dest->name=(*args)[2];
+  macros.push_back(dest);
+  return 1;
+}
+
 Command(cmd_listmacros) {
   for (auto i: macros) {
     dprintf(output,"- %s\n",i->name.c_str());
   }
+  return 1;
+}
+
+Command(cmd_recordmacro) {
+  if (args->size()<3) {
+    dprintf(output,"usage: recordmacro <device> <macro> [stopkey]\n");
+    return 0;
+  }
+  dprintf(output,"sorry, to-do.\n");
   return 1;
 }
 
@@ -1008,12 +1060,13 @@ const AvailCommands cmds[]={
   {"delmap", cmd_delmap},
   {"switchmap", cmd_switchmap},
 
-  {"newmacro", cmd_newmacro},/*
-  {"copymacro", cmd_copymacro},
+  {"newmacro", cmd_newmacro},
+  {"copymacro", cmd_copymacro},/*
   {"delmacro", cmd_delmacro},
   */{"listmacros", cmd_listmacros},/*
   {"recordmacro", cmd_recordmacro},
   {"playmacro", cmd_playmacro},
+  {"stopmacro", cmd_stopmacro},
 */
   {"newprofile", cmd_newprofile},
   {"copyprofile", cmd_copyprofile},
