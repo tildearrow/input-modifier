@@ -53,8 +53,6 @@ this is pretty much unusable in a *real crazy* environment as of now, but otherw
 
 - macros.
 
-- profiles.
-
 - X11 integration (per-application profile bind, warping cursor and the like).
 
 - bug fixes.
