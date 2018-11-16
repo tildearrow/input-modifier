@@ -19,6 +19,7 @@ Device::Device():
   phys(""),
   uinputfd(-1),
   inThread(-1),
+  curProfile("Default"),
   inited(false),
   active(false),
   enabled(false),
@@ -35,6 +36,7 @@ Device::Device(string n, string p):
   phys(""),
   uinputfd(-1),
   inThread(-1),
+  curProfile("Default"),
   inited(false),
   active(false),
   enabled(false),
@@ -93,6 +95,14 @@ string Device::getSaneName() {
   while ((pos=ret.find(' '))!=string::npos) ret[pos]='-';
   while ((pos=ret.find('/'))!=string::npos) ret[pos]='_';
   return ret;
+}
+
+string Device::getCurProfile() {
+  return curProfile;
+}
+
+void Device::setCurProfile(string name) {
+  curProfile=name;
 }
 
 /*

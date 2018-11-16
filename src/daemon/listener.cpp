@@ -63,7 +63,7 @@ void DeviceListener::run() {
             if (dev[j]->active) {
               dev[j]->deactivate();
             }
-            dev[j]->saveState(configDir+dev[j]->getSaneName()+S(".json"));
+            dev[j]->saveState(configDir+dev[j]->getSaneName());
             imLogI("removing device %s...\n",dev[j]->getName().c_str());
             delete dev[j];
             dev.erase(dev.begin()+j);
@@ -95,7 +95,7 @@ void DeviceListener::run() {
         if (!i->inited) {
           imLogI("initializing device %s...\n",i->getName().c_str());
           i->init();
-          i->loadState(configDir+i->getSaneName()+S(".json"));
+          i->loadState(configDir+i->getSaneName());
           if (i->enabled) {
             i->activate();
           }

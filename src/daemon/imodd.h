@@ -177,6 +177,8 @@ class Device {
     
     string getName();
     string getSaneName();
+    string getCurProfile();
+    void setCurProfile(string name);
     void run();
     bool activate();
     bool deactivate();
@@ -191,7 +193,7 @@ class Device {
     bool loadState(string path);
     bool saveState(string path);
     bool loadProfile(string path);
-    bool saveProfile(string path);
+    bool saveProfile(string path, string dirpath);
     Device(string n, string p);
     Device();
 };

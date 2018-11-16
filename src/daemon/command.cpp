@@ -1,6 +1,9 @@
 #include "imodd.h"
+#include <iostream>
+#include <fstream>
 
 extern std::vector<Device*> dev;
+extern string configDir;
 
 #define IndexedCommand \
   size_t index; \
@@ -758,6 +761,169 @@ Command(cmd_disable) {
   return 1;
 }
 
+const char* skeleton="{\"curmap\":\"Default\",\"mappings\":[{\"keybinds\":[],\"name\":\"Default\"}]}";
+
+Command(cmd_newprofile) {
+  FILE* skele;
+  string profpath;
+  if (args->size()<3) {
+    dprintf(output,"usage: newprofile <device> <name>\n");
+    return 0;
+  }
+
+  IndexedCommand
+  
+  profpath=configDir+dev[index]->getSaneName()+S("/")+(*args)[2]+".json";
+  
+  if (access(profpath.c_str(),0)==F_OK) {
+    dprintf(output,"error: a profile with the same name already exists.\n");
+    return 0;
+  }
+  
+  skele=fopen(profpath.c_str(),"w");
+  if (skele==NULL) {
+    dprintf(output,"error: couldn't create profile: %s.\n",strerror(errno));
+    return 0;
+  }
+  
+  fwrite(skeleton,1,strlen(skeleton),skele);
+  fclose(skele);
+  return 1;
+}
+
+Command(cmd_copyprofile) {
+  FILE* src;
+  FILE* dest;
+  string destpath;
+  char buf[4096];
+  int amount;
+  if (args->size()<4) {
+    dprintf(output,"usage: copyprofile <device> <source> <destination>\n");
+    return 0;
+  }
+
+  IndexedCommand
+  
+  if ((*args)[2]==(*args)[3]) {
+    dprintf(output,"error: they must have different names.\n");
+    return 0;
+  }
+  
+  src=fopen((configDir+dev[index]->getSaneName()+S("/")+(*args)[2]+".json").c_str(),"r");
+  
+  if (src==NULL) {
+    dprintf(output,"error: that profile doesn't exist.\n");
+    return 0;
+  }
+  
+  destpath=configDir+dev[index]->getSaneName()+S("/")+(*args)[3]+".json";
+  
+  if (access(destpath.c_str(),0)==F_OK) {
+    dprintf(output,"error: a profile with the same name already exists.\n");
+    fclose(src);
+    return 0;
+  }
+  
+  dest=fopen(destpath.c_str(),"w");
+  if (dest==NULL) {
+    dprintf(output,"error: while opening destination profile: %s\n",strerror(errno));
+    fclose(src);
+    return 0;
+  }
+  
+  while (!feof(src)) {
+    amount=fread(buf,1,4096,src);
+    fwrite(buf,1,amount,dest);
+  }
+  
+  fclose(src);
+  fclose(dest);
+  return 1;
+}
+
+Command(cmd_listprofiles) {
+  DIR* listDir;
+  struct dirent* subject;
+  string printable;
+  if (args->size()<2) {
+    dprintf(output,"usage: listprofiles <device>\n");
+    return 0;
+  }
+
+  IndexedCommand
+  
+  listDir=opendir((configDir+dev[index]->getSaneName()).c_str());
+  
+  if (listDir==NULL) {
+    dprintf(output,"error: device doesn't have a profile directory! this is NOT normal...\n");
+    return 0;
+  }
+  
+  while ((subject=readdir(listDir))!=NULL) {
+    if (strstr(subject->d_name,".json")!=NULL) {
+      printable=subject->d_name;
+      printable.replace(printable.find_first_of(".json"),5,"");
+      dprintf(output,"- %s\n",printable.c_str());
+    }
+  }
+  
+  closedir(listDir);
+  return 1;
+}
+
+Command(cmd_switchprofile) {
+  string path;
+  if (args->size()<3) {
+    dprintf(output,"usage: switchprofile <device> <name>\n");
+    return 0;
+  }
+
+  IndexedCommand
+  
+  path=configDir+dev[index]->getSaneName();
+  if (!dev[index]->saveProfile(path+S("/")+dev[index]->getCurProfile()+S(".json"),path)) {
+    dprintf(output,"error: couldn't save current profile...\n");
+    return 0;
+  }
+  
+  if (access((path+S("/")+(*args)[2]+S(".json")).c_str(),0)!=F_OK) {
+    dprintf(output,"error: that profile doesn't exist.\n");
+    return 0;
+  }
+  
+  dev[index]->setCurProfile((*args)[2]);
+  if (!dev[index]->loadProfile(path+S("/")+(*args)[2]+S(".json"))) {
+    dprintf(output,"error: couldn't load profile...\n");
+    return 0;
+  }
+  
+  return 1;
+}
+
+Command(cmd_delprofile) {
+  if (args->size()<3) {
+    dprintf(output,"usage: delprofile <device> <name>\n");
+    return 0;
+  }
+
+  IndexedCommand
+  
+  if ((*args)[2]==dev[index]->getCurProfile()) {
+    dprintf(output,"error: that is the current profile.\n");
+    return 0;
+  }
+  
+  if (unlink((configDir+dev[index]->getSaneName()+S("/")+(*args)[2]+S(".json")).c_str())<0) {
+    if (errno==ENOENT) {
+      dprintf(output,"error: that profile doesn't exist.\n");
+    } else {
+      dprintf(output,"error: while trying to delete profile: %s.\n",strerror(errno));
+    }
+    return 0;
+  }
+  return 1;
+}
+
 Command(cmd_version) {
   dprintf(output,
   "input-modifier (version " IMOD_VERSION ")\n"
@@ -824,13 +990,15 @@ const AvailCommands cmds[]={
   {"listmacros", cmd_listmacros},
   {"recordmacro", cmd_recordmacro},
   {"playmacro", cmd_playmacro},
+*/
   {"newprofile", cmd_newprofile},
   {"copyprofile", cmd_copyprofile},
   {"delprofile", cmd_delprofile},
   {"listprofiles", cmd_listprofiles},
+  /*
   {"setprofile", cmd_setprofile},
+  */
   {"switchprofile", cmd_switchprofile},
-*/
   {"version", cmd_version},
   {NULL, NULL}
 };

@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
   imLogI("initializing devices...\n");
   for (auto i: dev) {
     i->init();
-    i->loadState(configDir+i->getSaneName()+S(".json"));
+    i->loadState(configDir+i->getSaneName());
     if (i->enabled) {
       i->activate();
     }
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
         if (i->enabled) {
           i->deactivate();
         }
-        i->saveState(configDir+i->getSaneName()+S(".json"));
+        i->saveState(configDir+i->getSaneName());
       }
       break;
     }
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
         if (i->enabled) {
           i->deactivate();
         }
-        i->saveState(configDir+i->getSaneName()+S(".json"));
+        i->saveState(configDir+i->getSaneName());
       }
       raise(SIGSTOP);
       ststpH.sa_handler=stopHandler;
