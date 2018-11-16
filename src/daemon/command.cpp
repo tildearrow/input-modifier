@@ -924,6 +924,30 @@ Command(cmd_delprofile) {
   return 1;
 }
 
+Command(cmd_newmacro) {
+  if (args->size()<2) {
+    dprintf(output,"usage: newmacro <name>\n");
+    return 0;
+  }
+  
+  for (auto i: macros) {
+    if (i->name==(*args)[1]) {
+      dprintf(output,"error: a macro with the same name already exists.\n");
+      return 0;
+    }
+  }
+
+  macros.push_back(new Macro((*args)[1]));
+  return 1;
+}
+
+Command(cmd_listmacros) {
+  for (auto i: macros) {
+    dprintf(output,"- %s\n",i->name.c_str());
+  }
+  return 1;
+}
+
 Command(cmd_version) {
   dprintf(output,
   "input-modifier (version " IMOD_VERSION ")\n"
@@ -983,11 +1007,11 @@ const AvailCommands cmds[]={
   {"copymap", cmd_copymap},
   {"delmap", cmd_delmap},
   {"switchmap", cmd_switchmap},
-/*
-  {"newmacro", cmd_newmacro},
+
+  {"newmacro", cmd_newmacro},/*
   {"copymacro", cmd_copymacro},
   {"delmacro", cmd_delmacro},
-  {"listmacros", cmd_listmacros},
+  */{"listmacros", cmd_listmacros},/*
   {"recordmacro", cmd_recordmacro},
   {"playmacro", cmd_playmacro},
 */

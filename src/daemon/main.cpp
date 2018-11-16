@@ -1,6 +1,7 @@
 #include "imodd.h"
 
 std::vector<Device*> dev;
+std::vector<Macro*> macros;
 SocketInterface sock;
 
 DeviceListener* list;

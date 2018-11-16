@@ -34,7 +34,7 @@ typedef std::string string;
 #define LOGLEVEL_INFO 2
 #define LOGLEVEL_DEBUG 3
 
-#define logLevel 2
+#define logLevel 3
 
 #define IMOD_VERSION "1.1"
 
@@ -66,17 +66,28 @@ void childHandler(int data);
 // 2: allow super weird devices
 #define allowWeird 0
 
+// K: key
+// R: relative
+// S: switch
+// M: macro
 enum ActionType {
-  actKey=0,
-  actTurbo,
-  actRel,
-  actRelConst,
-  actAbs,
-  actExecute,
-  actSwitchMap,
-  actShiftMap,
-  actDisable
+  // NAME           KRSM
+  actKey=0,      // YYYY
+  actTurbo,      // Y.Y.
+  actRel,        // YY.Y
+  actRelConst,   // Y.Y.
+  actAbs,        // YY..
+  actExecute,    // YYY.
+  actSwitchMap,  // YYY.
+  actShiftMap,   // Y.Y.
+  actDisable,    // YYY.
+  actWait,       // ...Y
+  actMouseMove   // ...Y
 };
+// notes about actions:
+// - actTurbo, actRelConst and actShiftMap trigger until the switch has been released (set to 0).
+// - actMouseMove is a vector of relative X, relative Y and delay.
+//   the sole purpose of this event and not actRel is to ease displaying it in the GUI.
 
 #define Command(x) int x(int output, std::vector<string>* args)
 
@@ -101,6 +112,7 @@ struct Action {
   Action(ActionType t, int c, int v, struct timespec ti): type(t), code(c), value(v), timeOn(ti) {}
   Action(ActionType t, string prog, std::vector<string>& a, std::vector<string>& e): type(t), command(prog), args(a), env(e) {}
   Action(ActionType t, string name): type(t), command(name) {}
+  Action(ActionType t, struct timespec delay): type(t), timeOn(delay) {}
 };
 
 struct eventBind {
@@ -129,6 +141,15 @@ struct activeTurbo {
   int code;
   activeTurbo(struct timespec on, struct timespec off, struct timespec n, int c): phase(true), timeOn(on), timeOff(off), next(n), code(c) {}
 };
+
+struct Macro {
+  string name;
+  std::vector<Action> actions;
+  Macro(string n): name(n) {}
+};
+
+// macros are global
+extern std::vector<Macro*> macros;
 
 class Device {
   int fd[8];
