@@ -393,8 +393,8 @@ void Device::run() {
   }
   ctime=mkts(0,0);
   otime=mkts(0,0);
-  doWhat=0;
   while (1) {
+    doWhat=0;
     if (!runTurbo.empty()) {
       smallest=NULL;
       for (auto& i: runTurbo) {
@@ -471,7 +471,7 @@ void Device::run() {
           write(uinputfd,&wire,sizeof(struct input_event));
           write(uinputfd,&syncev,sizeof(struct input_event));
         } else {
-          imLogW("%s: smallest is a nihil!\n",name.c_str());
+          imLogW("%s: smallestRC is a nihil!\n",name.c_str());
         } 
         smallestRC=NULL;
       } else if (doWhat==2) {
