@@ -81,6 +81,7 @@ enum ActionType {
   actSwitchMap,  // YYY.
   actShiftMap,   // Y.Y.
   actDisable,    // YYY.
+  actMacro,      // YY..
   actWait,       // ...Y
   actMouseMove   // ...Y
 };
@@ -142,10 +143,29 @@ struct activeTurbo {
   activeTurbo(struct timespec on, struct timespec off, struct timespec n, int c): phase(true), timeOn(on), timeOff(off), next(n), code(c) {}
 };
 
+struct activeRelConst {
+  struct timespec delay;
+  struct timespec next;
+  int code, value;
+  activeRelConst(struct timespec d, int c, int v): delay(d), next(curTime(CLOCK_MONOTONIC)+d), code(c), value(v) {}
+};
+
+struct activeDelayed {
+  struct timespec next;
+  struct input_event ev;
+};
+
 struct Macro {
   string name;
   std::vector<Action> actions;
   Macro(string n): name(n) {}
+};
+
+struct activeMacro {
+  Macro* which;
+  struct timespec next;
+  size_t actionIndex;
+  activeMacro(Macro* w): which(w), actionIndex(0), next(mkts(0,0)) {}
 };
 
 // macros are global
@@ -177,6 +197,9 @@ class Device {
   std::bitset<SND_CNT> sndcaps;
 
   std::vector<activeTurbo> runTurbo;
+  std::vector<activeRelConst> runRelConst;
+  std::vector<activeMacro> runMacro;
+  std::vector<activeDelayed> runDelayedEvent;
   std::bitset<KEY_CNT> pressedKeys;
 
   string curProfile;

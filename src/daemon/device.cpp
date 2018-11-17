@@ -373,14 +373,15 @@ int Device::findMap(string name) {
 }
 
 void Device::run() {
-  struct timespec ctime;
+  struct timespec ctime, otime, curTimeSingle;
   struct input_event event;
   struct input_event syncev;
   struct input_event wire;
   struct sigaction chldH;
   activeTurbo* smallest;
+  activeRelConst* smallestRC;
   fd_set devfd;
-  int amount, count, found, lastread;
+  int amount, count, found, lastread, doWhat;
   threadRunning=true;
   syncev.type=EV_SYN;
   syncev.code=0;
@@ -391,42 +392,93 @@ void Device::run() {
     }
   }
   ctime=mkts(0,0);
+  otime=mkts(0,0);
+  doWhat=0;
   while (1) {
     if (!runTurbo.empty()) {
-      for (auto i: runTurbo) {
+      smallest=NULL;
+      for (auto& i: runTurbo) {
         if (smallest==NULL) {
           smallest=&i;
           continue;
         }
-        if (smallest->next<i.next) {
+        if (i.next<smallest->next) {
           smallest=&i;
         }
       }
-      ctime=curTime(CLOCK_MONOTONIC);
-      ctime=smallest->next-curTime(CLOCK_MONOTONIC);
-      if (ctime<mkts(0,0)) {
-        ctime=mkts(0,0);
+    }
+    if (!runRelConst.empty()) {
+      smallestRC=NULL;
+      for (auto& i: runRelConst) {
+        if (smallestRC==NULL) {
+          smallestRC=&i;
+          continue;
+        }
+        if (i.next<smallestRC->next) {
+          smallestRC=&i;
+        }
       }
+    }
+    ctime=mkts(0,0);
+    curTimeSingle=curTime(CLOCK_MONOTONIC);
+    if (!runTurbo.empty()) {
+      ctime=smallest->next-curTimeSingle;
+    }
+    if (!runRelConst.empty()) {
+      if (ctime==mkts(0,0)) {
+        ctime=smallestRC->next-curTimeSingle;
+        doWhat=1;
+      } else {
+        otime=smallestRC->next-curTimeSingle;
+        if (otime<ctime) {
+          ctime=otime;
+          doWhat=1;
+        }
+      }
+    }
+    if (ctime<mkts(0,0)) {
+      ctime=mkts(0,0);
     }
     FD_ZERO(&devfd);
     for (int i=0; i<fds; i++) FD_SET(fd[i],&devfd);
-    amount=pselect(fd[fds-1]+1,&devfd,NULL,NULL,(runTurbo.empty())?(NULL):(&ctime),NULL);
+    amount=pselect(fd[fds-1]+1,&devfd,NULL,NULL,(runTurbo.empty()&&runRelConst.empty())?(NULL):(&ctime),NULL);
     if (amount==-1) {
       if (errno==EINTR) continue;
       imLogW("%s: pselect: %s\n",strerror(errno));
     }
-    if (amount==0) { 
-      // do turbo
-      for (activeTurbo& i: runTurbo) {
-        i.phase=!i.phase;
-        i.next=i.next+((i.phase)?(i.timeOn):(i.timeOff));
-        wire.type=EV_KEY;
-        wire.code=i.code;
-        wire.value=i.phase;
-        write(uinputfd,&wire,sizeof(struct input_event));
-        write(uinputfd,&syncev,sizeof(struct input_event));
+    if (amount==0) {
+      if (doWhat==0) {
+        // do turbo
+        if (smallest!=NULL) {
+          smallest->phase=!smallest->phase;
+          smallest->next=smallest->next+((smallest->phase)?(smallest->timeOn):(smallest->timeOff));
+          wire.type=EV_KEY;
+          wire.code=smallest->code;
+          wire.value=smallest->phase;
+          write(uinputfd,&wire,sizeof(struct input_event));
+          write(uinputfd,&syncev,sizeof(struct input_event));
+        } else {
+          imLogW("%s: smallest is a nihil!\n",name.c_str());
+        } 
+        smallest=NULL;
+      } else if (doWhat==1) {
+        // do relconst
+        if (smallestRC!=NULL) {
+          smallestRC->next=smallestRC->next+smallestRC->delay;
+          wire.type=EV_REL;
+          wire.code=smallestRC->code;
+          wire.value=smallestRC->value;
+          write(uinputfd,&wire,sizeof(struct input_event));
+          write(uinputfd,&syncev,sizeof(struct input_event));
+        } else {
+          imLogW("%s: smallest is a nihil!\n",name.c_str());
+        } 
+        smallestRC=NULL;
+      } else if (doWhat==2) {
+        // do macro
+      } else if (doWhat==3) {
+        // do delayed event
       }
-      smallest=NULL;
       continue;
     }
     for (int i=0; i<fds; i++) if (FD_ISSET(fd[i],&devfd)) {
@@ -526,7 +578,24 @@ void Device::run() {
                     write(uinputfd,&syncev,sizeof(struct input_event));
                   }
                   break;
-                case actRelConst: // TODO
+                case actRelConst:
+                  if (event.value==1) {
+                    imLogD("running relconst\n");
+                    runRelConst.push_back(activeRelConst(i.timeOn,i.code,i.value));
+                    wire.type=EV_REL;
+                    wire.code=i.code;
+                    wire.value=i.value;
+                    write(uinputfd,&wire,sizeof(struct input_event));
+                    write(uinputfd,&syncev,sizeof(struct input_event));
+                  } else if (event.value==0) {
+                    imLogD("disabling relconst\n");
+                    for (std::vector<activeRelConst>::iterator j=runRelConst.begin(); j!=runRelConst.end(); j++) {
+                      if (j->code==i.code && j->value==i.value) {
+                        runRelConst.erase(j);
+                        break;
+                      }
+                    }
+                  }
                   break;
                 case actAbs:
                   if (event.value==1) {
