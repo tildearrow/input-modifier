@@ -11,7 +11,10 @@ const char* actionNames[]={
   "execute",
   "switchmap",
   "shiftmap",
-  "disable"
+  "disable",
+  "macro",
+  "wait",
+  "mousemove"
 };
 
 bool Device::loadProfile(string path) {
@@ -70,7 +73,7 @@ bool Device::loadProfile(string path) {
             break;
           case actRelConst:
             mappings[mapIndex]->keybinds[bindCode].actions.
-              push_back(Action(actRel,k["code"],k["value"],mkts(k["delay"][0],k["delay"][1])));
+              push_back(Action(actRelConst,k["code"],k["value"],mkts(k["delay"][0],k["delay"][1])));
             break;
           case actAbs:
             mappings[mapIndex]->keybinds[bindCode].actions.

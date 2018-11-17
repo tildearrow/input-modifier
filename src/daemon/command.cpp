@@ -317,7 +317,7 @@ Command(cmd_addaction) {
       dprintf(output,"error: time can't be negative.\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].actions.push_back(Action(actRel,intVal,intVal1,onTime));
+    mapOp->keybinds[eventVal].actions.push_back(Action(actRelConst,intVal,intVal1,onTime));
   } else if ((*args)[eventArg+1]==S("abs")) {
     // absolute (args: 2)
     if (args->size()<2+(size_t)eventArg+2) {
@@ -673,6 +673,9 @@ Command(cmd_listactions) {
         break;
       case actMouseMove:
         dprintf(output,"%d: mousemove\n",ic);
+        break;
+      case actMacro:
+        dprintf(output,"%d: macro: %s\n",ic,i.command.c_str());
         break;
     }
     ic++;
