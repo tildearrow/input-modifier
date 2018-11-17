@@ -1,9 +1,25 @@
 #include "imodd.h"
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 
 extern std::vector<Device*> dev;
 extern string configDir;
+
+size_t findByName(int output, string name) {
+  string lowercase;
+  int ip=0;
+  for (auto& i: dev) {
+    lowercase=i->getName();
+    transform(lowercase.begin(),lowercase.end(),lowercase.begin(),::tolower);
+    if (lowercase.find(name)!=string::npos) {
+      dprintf(output,"using device %s.\n",i->getName().c_str());
+      return ip;
+    }
+    ip++;
+  }
+  return string::npos;
+}
 
 #define IndexedCommand \
   size_t index; \
@@ -14,8 +30,12 @@ extern string configDir;
   try { \
     index=stoul((*args)[1]); \
   } catch (std::exception& err) { \
-    dprintf(output,"error: invalid number.\n"); \
-    return 0; \
+    /* try finding the device by name */ \
+    index=findByName(output,(*args)[1]); \
+    if (index==string::npos) { \
+      dprintf(output,"error: invalid number.\n"); \
+      return 0; \
+    } \
   } \
   if (index>=dev.size()) { \
     dprintf(output,"error: device index out of range (0-%lu).\n",dev.size()-1); \
