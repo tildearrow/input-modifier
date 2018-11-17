@@ -55,15 +55,21 @@ struct timespec stots(string s) {
 }
 
 string tstos(struct timespec ts) {
-  string ret;
+  string ret,sdeci;
   int deci;
   deci=ts.tv_nsec;
-  while ((deci%10)==0 || deci==0) {
-    deci/=10;
-  }
+  
   ret+=std::to_string(ts.tv_sec);
   ret+=".";
-  ret+=std::to_string(deci);
+  for (int i=0; i<9; i++) {
+    sdeci.insert(0,1,'0'+(deci%10));
+    deci/=10;
+  }
+  while (sdeci.size()>1 && *(sdeci.end()-1)=='0') {
+    sdeci.erase(sdeci.size()-1);
+  }
+  ret+=sdeci;
+  
   return ret;
 }
 
