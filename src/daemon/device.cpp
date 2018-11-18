@@ -719,6 +719,17 @@ void Device::run() {
                     }
                   }
                   break;
+                case actMacro:
+                  if (event.value==1) {
+                    for (auto* j: macros) {
+                      if (j->name==i.command) {
+                        imLogD("running macro\n");
+                        runMacro.push_back(activeMacro(j));
+                        break;
+                      }
+                    }
+                  }
+                  break;
                 default:
                   imLogW("unknown/unimplemented action %d...\n",i.type);
                   break;

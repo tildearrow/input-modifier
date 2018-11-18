@@ -165,7 +165,7 @@ struct activeMacro {
   Macro* which;
   struct timespec next;
   size_t actionIndex;
-  activeMacro(Macro* w): which(w), next(mkts(0,0)), actionIndex(0) {}
+  activeMacro(Macro* w): which(w), next(curTime(CLOCK_MONOTONIC)), actionIndex(0) {}
 };
 
 // macros are global

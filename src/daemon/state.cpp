@@ -99,6 +99,10 @@ bool Device::loadProfile(string path) {
             mappings[mapIndex]->keybinds[bindCode].actions.
               push_back(Action(actDisable,0));
             break;
+          case actMacro:
+            mappings[mapIndex]->keybinds[bindCode].actions.
+              push_back(Action(actMacro,string(k["name"])));
+            break;
         }
       }
     }
@@ -152,7 +156,7 @@ bool Device::saveProfile(string path, string dirpath) {
               actionPart["command"]=k.command;
               actionPart["args"]=k.args;
               break;
-            case actShiftMap: case actSwitchMap:
+            case actShiftMap: case actSwitchMap: case actMacro:
               actionPart["name"]=k.command;
               break;
             case actDisable:

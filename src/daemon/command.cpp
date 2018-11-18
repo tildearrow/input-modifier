@@ -1087,6 +1087,8 @@ const AvailCommands cmds[]={
   {"copymacro", cmd_copymacro},/*
   {"delmacro", cmd_delmacro},
   */{"listmacros", cmd_listmacros},/*
+  {"insmacroact", cmd_insmacroact},
+  {"delmacroact", cmd_delmacroact},
   {"recordmacro", cmd_recordmacro},
   {"playmacro", cmd_playmacro},
   {"stopmacro", cmd_stopmacro},
