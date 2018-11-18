@@ -380,8 +380,10 @@ void Device::run() {
   struct sigaction chldH;
   activeTurbo* smallest;
   activeRelConst* smallestRC;
+  activeMacro* smallestM;
   fd_set devfd;
   int amount, count, found, lastread, doWhat;
+  bool doubleBreak;
   threadRunning=true;
   syncev.type=EV_SYN;
   syncev.code=0;
@@ -419,6 +421,18 @@ void Device::run() {
         }
       }
     }
+    if (!runMacro.empty()) {
+      smallestM=NULL;
+      for (auto& i: runMacro) {
+        if (smallestM==NULL) {
+          smallestM=&i;
+          continue;
+        }
+        if (i.next<smallestM->next) {
+          smallestM=&i;
+        }
+      }
+    }
     ctime=mkts(0,0);
     curTimeSingle=curTime(CLOCK_MONOTONIC);
     if (!runTurbo.empty()) {
@@ -433,6 +447,18 @@ void Device::run() {
         if (otime<ctime) {
           ctime=otime;
           doWhat=1;
+        }
+      }
+    }
+    if (!runMacro.empty()) {
+      if (ctime==mkts(0,0)) {
+        ctime=smallestM->next-curTimeSingle;
+        doWhat=2;
+      } else {
+        otime=smallestM->next-curTimeSingle;
+        if (otime<ctime) {
+          ctime=otime;
+          doWhat=2;
         }
       }
     }
@@ -476,8 +502,50 @@ void Device::run() {
         smallestRC=NULL;
       } else if (doWhat==2) {
         // do macro
+        doubleBreak=false;
+        if (smallestM!=NULL) {
+          do {
+            Action& a=smallestM->which->actions[smallestM->actionIndex];
+            switch (a.type) {
+              case actKey:
+                wire.type=EV_KEY;
+                wire.code=a.code;
+                wire.value=a.value;
+                write(uinputfd,&wire,sizeof(struct input_event));
+                write(uinputfd,&syncev,sizeof(struct input_event));
+                break;
+              case actRel:
+                wire.type=EV_REL;
+                wire.code=a.code;
+                wire.value=a.value;
+                write(uinputfd,&wire,sizeof(struct input_event));
+                write(uinputfd,&syncev,sizeof(struct input_event));
+                break;
+              case actWait:
+                doubleBreak=true;
+                smallestM->next=smallestM->next+a.timeOn;
+                break;
+              case actMouseMove:
+                // TODO
+                break;
+              default:
+                break;
+            }
+            if (doubleBreak) break;
+          } while (++smallestM->actionIndex<smallestM->which->actions.size());
+          // this code is to be probably improved
+          for (std::vector<activeMacro>::iterator i=runMacro.begin(); i!=runMacro.end(); i++) {
+            if (i->actionIndex<i->which->actions.size()) {
+              runMacro.erase(i);
+              break;
+            }
+          }
+        } else {
+          imLogW("%s: smallestM is a nihil!\n",name.c_str());
+        }
       } else if (doWhat==3) {
         // do delayed event
+        imLogW("%s: TODO: delayed event\n",name.c_str());
       }
       continue;
     }
