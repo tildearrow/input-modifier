@@ -66,8 +66,6 @@ this is pretty much unusable in a *real crazy* environment as of now, but otherw
 
 - ignoring non-input devices such as the Firefly or Polaris.
 
-- implement relconst.
-
 - fix pressing non-bit-set keys.
 
 - implement binds for relative and switch events.
