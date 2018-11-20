@@ -152,6 +152,7 @@ Command(cmd_addaction) {
                    "- relconst <relEvent> <value> <delay>\n"
                    "- abs <absEvent> <value>\n"
                    "- execute <command> [args ...]\n"
+                   "- macro <name> [behavior]\n"
                    "- switchmap <map>\n"
                    "- shiftmap <map>\n");
     return 0;
@@ -176,6 +177,7 @@ Command(cmd_addaction) {
                      "- relconst <relEvent> <value> <delay>\n"
                      "- abs <absEvent> <value>\n"
                      "- execute <command> [args ...]\n"
+                     "- macro <name> [behavior]\n"
                      "- switchmap <map>\n"
                      "- shiftmap <map>\n");
       return 0;
@@ -401,6 +403,30 @@ Command(cmd_addaction) {
       return 0;
     }
     mapOp->keybinds[eventVal].actions.push_back(Action(actShiftMap,mapName));
+  } else if ((*args)[eventArg+1]==S("macro")) {
+    // macro (args: at least 1)
+    if (args->size()<2+(size_t)eventArg+1) {
+      dprintf(output,"usage: addaction <device> <@keymap> <event> macro <name> [behavior]\n"
+                     "behavior can be any of:\n"
+                     "- play (default): play macro upon press\n"
+                     "- playsingle: play macro upon press, but only one can run at a time\n"
+                     "- playsinglenoint: play macro upon press, but only one can run at a time and pressing again won't interrupt\n"
+                     "- playswitch: play macro, and pressing again stops it if running\n"
+                     "- playhold: play macro as long as pressed\n"
+                     "- loopswitch: loop macro until pressed again\n"
+                     "- loophold: loop macro as long as pressed\n"
+                      );
+      return 0;
+    }
+    mapOp->keybinds[eventVal].doModify=true;
+    mapName=(*args)[eventArg+2];
+    for (auto& i: macros) {
+      if (i->name==mapName) {
+        mapOp->keybinds[eventVal].actions.push_back(Action(actMacro,mapName));
+      }
+    }
+    dprintf(output,"error: binding macro not found.\n");
+    return 0;
   } else {
     dprintf(output,"error: that bind type does not exist.\n");
     return 0;
@@ -1030,8 +1056,7 @@ Command(cmd_insmacroact) {
   if (args->size()<4) {
     dprintf(output,"usage: insmacroact <macro> <type> ...\n");
     dprintf(output,"action types:\n");
-    dprintf(output,"- disable\n"
-                   "- key <key> <value>\n"
+    dprintf(output,"- key <key> <value>\n"
                    "- rel <relEvent> <value>\n"
                    "- wait <time>\n");
     return 0;
@@ -1047,6 +1072,7 @@ Command(cmd_insmacroact) {
 
   if (where==NULL) {
     dprintf(output,"error: that macro doesn't exist.\n");
+    return 0;
   }
   
   if ((*args)[2]==S("key")) {
