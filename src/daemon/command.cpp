@@ -1023,6 +1023,107 @@ Command(cmd_recordmacro) {
   return 1;
 }
 
+Command(cmd_insmacroact) {
+  int intVal, intVal1;
+  Macro* where;
+  struct timespec onTime;
+  if (args->size()<4) {
+    dprintf(output,"usage: insmacroact <macro> <type> ...\n");
+    dprintf(output,"action types:\n");
+    dprintf(output,"- disable\n"
+                   "- key <key> <value>\n"
+                   "- rel <relEvent> <value>\n"
+                   "- wait <time>\n");
+    return 0;
+  }
+  
+  where=NULL;
+  for (auto* i: macros) {
+    if (i->name==(*args)[1]) {
+      where=i;
+      break;
+    }
+  }
+
+  if (where==NULL) {
+    dprintf(output,"error: that macro doesn't exist.\n");
+  }
+  
+  if ((*args)[2]==S("key")) {
+    // key (args: 2)
+    if (args->size()<5) {
+      dprintf(output,"usage: insmacroact <macro> key <key> <value>\n");
+      return 0;
+    }
+    try {
+      intVal=stoi((*args)[3]);
+    } catch (std::exception& err) {
+      if ((intVal=findKey((*args)[3].c_str()))==-1) {
+        dprintf(output,"error: invalid key code.\n");
+        return 0;
+      }
+    }
+    if (intVal<0 || intVal>KEY_CNT) {
+      dprintf(output,"error: keycode out of range.\n");
+      return 0;
+    }
+    try {
+      intVal1=stoi((*args)[4]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid value.\n");
+      return 0;
+    }
+    where->actions.push_back(Action(actKey,intVal,intVal1));
+  } else if ((*args)[2]==S("rel")) {
+    // relative (args: 2)
+    if (args->size()<5) {
+      dprintf(output,"usage: insmacroact <macro> rel <relEvent> <value>\n");
+      return 0;
+    }
+    try {
+      intVal=stoi((*args)[3]);
+    } catch (std::exception& err) {
+      if ((intVal=findRel((*args)[3].c_str()))==-1) {
+        dprintf(output,"error: invalid relative code.\n");
+        return 0;
+      }
+    }
+    if (intVal<0 || intVal>REL_CNT) {
+      dprintf(output,"error: relative event code out of range.\n");
+      return 0;
+    }
+    try {
+      intVal1=stoi((*args)[4]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid value.\n");
+      return 0;
+    }
+    where->actions.push_back(Action(actRel,intVal,intVal1));
+  } else if ((*args)[2]==S("wait")) {
+    // wait (args: 1)
+    if (args->size()<4) {
+      dprintf(output,"usage: insmacroact <macro> wait <time>\n");
+      return 0;
+    }
+    try {
+      onTime=stots((*args)[3]);
+    } catch (std::exception& err) {
+      dprintf(output,"error: invalid time.\n");
+      return 0;
+    }
+    if (onTime<mkts(0,0)) {
+      dprintf(output,"error: time can't be negative.\n");
+      return 0;
+    }
+    where->actions.push_back(Action(actWait,onTime));
+  } else {
+    dprintf(output,"error: that action type does not exist.\n");
+    return 0;
+  }
+  
+  return 1;
+}
+
 Command(cmd_version) {
   dprintf(output,
   "input-modifier (version " IMOD_VERSION ")\n"
@@ -1086,8 +1187,8 @@ const AvailCommands cmds[]={
   {"newmacro", cmd_newmacro},
   {"copymacro", cmd_copymacro},/*
   {"delmacro", cmd_delmacro},
-  */{"listmacros", cmd_listmacros},/*
-  {"insmacroact", cmd_insmacroact},
+  */{"listmacros", cmd_listmacros},
+  {"insmacroact", cmd_insmacroact},/*
   {"delmacroact", cmd_delmacroact},
   {"recordmacro", cmd_recordmacro},
   {"playmacro", cmd_playmacro},
