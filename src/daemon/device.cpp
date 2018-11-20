@@ -467,7 +467,7 @@ void Device::run() {
     }
     FD_ZERO(&devfd);
     for (int i=0; i<fds; i++) FD_SET(fd[i],&devfd);
-    amount=pselect(fd[fds-1]+1,&devfd,NULL,NULL,(runTurbo.empty()&&runRelConst.empty())?(NULL):(&ctime),NULL);
+    amount=pselect(fd[fds-1]+1,&devfd,NULL,NULL,(runTurbo.empty()&&runRelConst.empty()&&runMacro.empty())?(NULL):(&ctime),NULL);
     if (amount==-1) {
       if (errno==EINTR) continue;
       imLogW("%s: pselect: %s\n",strerror(errno));
@@ -522,8 +522,10 @@ void Device::run() {
                 write(uinputfd,&syncev,sizeof(struct input_event));
                 break;
               case actWait:
+                wire.type=EV_KEY;
                 doubleBreak=true;
                 smallestM->next=smallestM->next+a.timeOn;
+                ++smallestM->actionIndex;
                 break;
               case actMouseMove:
                 // TODO
@@ -535,7 +537,7 @@ void Device::run() {
           } while (++smallestM->actionIndex<smallestM->which->actions.size());
           // this code is to be probably improved
           for (std::vector<activeMacro>::iterator i=runMacro.begin(); i!=runMacro.end(); i++) {
-            if (i->actionIndex<i->which->actions.size()) {
+            if (i->actionIndex>=i->which->actions.size()) {
               runMacro.erase(i);
               break;
             }
@@ -721,7 +723,7 @@ void Device::run() {
                   break;
                 case actMacro:
                   if (event.value==1) {
-                    for (auto* j: macros) {
+                    for (auto& j: macros) {
                       if (j->name==i.command) {
                         imLogD("running macro\n");
                         runMacro.push_back(activeMacro(j));
