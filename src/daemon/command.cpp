@@ -224,7 +224,6 @@ Command(cmd_addaction) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> key <key>\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
@@ -237,6 +236,7 @@ Command(cmd_addaction) {
       dprintf(output,"error: keycode out of range.\n");
       return 0;
     }
+    mapOp->keybinds[eventVal].doModify=true;
     mapOp->keybinds[eventVal].actions.push_back(Action(actKey,intVal));
   } else if ((*args)[eventArg+1]==S("turbo")) {
     // turbo (args: 3)
@@ -244,7 +244,6 @@ Command(cmd_addaction) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> turbo <key> <timeOn> <timeOff>\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     try {
       onTime=stots((*args)[eventArg+3]);
     } catch (std::exception& err) {
@@ -277,6 +276,7 @@ Command(cmd_addaction) {
       dprintf(output,"error: keycode out of range.\n");
       return 0;
     }
+    mapOp->keybinds[eventVal].doModify=true;
     mapOp->keybinds[eventVal].actions.push_back(Action(actTurbo,intVal,onTime,offTime));
   } else if ((*args)[eventArg+1]==S("rel")) {
     // relative (args: 2)
@@ -284,7 +284,6 @@ Command(cmd_addaction) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> rel <relEvent> <value>\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
@@ -303,6 +302,7 @@ Command(cmd_addaction) {
       dprintf(output,"error: invalid value.\n");
       return 0;
     }
+    mapOp->keybinds[eventVal].doModify=true;
     mapOp->keybinds[eventVal].actions.push_back(Action(actRel,intVal,intVal1));
   } else if ((*args)[eventArg+1]==S("relconst")) {
     // relative constant (args: 3)
@@ -310,7 +310,6 @@ Command(cmd_addaction) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> relconst <relEvent> <value> <delay>\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
@@ -339,6 +338,7 @@ Command(cmd_addaction) {
       dprintf(output,"error: time can't be negative.\n");
       return 0;
     }
+    mapOp->keybinds[eventVal].doModify=true;
     mapOp->keybinds[eventVal].actions.push_back(Action(actRelConst,intVal,intVal1,onTime));
   } else if ((*args)[eventArg+1]==S("abs")) {
     // absolute (args: 2)
@@ -346,7 +346,6 @@ Command(cmd_addaction) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> abs <absEvent> <value>\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     try {
       intVal=stoi((*args)[eventArg+2]);
     } catch (std::exception& err) {
@@ -365,6 +364,7 @@ Command(cmd_addaction) {
       dprintf(output,"error: invalid value.\n");
       return 0;
     }
+    mapOp->keybinds[eventVal].doModify=true;
     mapOp->keybinds[eventVal].actions.push_back(Action(actAbs,intVal,intVal1));
   } else if ((*args)[eventArg+1]==S("execute")) {
     // execute (args: at least 1)
@@ -372,10 +372,10 @@ Command(cmd_addaction) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> execute <command> [args ...]\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     for (size_t i=eventArg+3; i<args->size(); i++) {
       argVec.push_back((*args)[i]);
     }
+    mapOp->keybinds[eventVal].doModify=true;
     mapOp->keybinds[eventVal].actions.push_back(Action(actExecute,(*args)[eventArg+2],argVec,envVec));
   } else if ((*args)[eventArg+1]==S("switchmap")) {
     // switch map (args: 1)
@@ -383,12 +383,12 @@ Command(cmd_addaction) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> switchmap <map>\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     mapName=(*args)[eventArg+2];
     if (dev[index]->findMap(mapName)<0) {
       dprintf(output,"error: binding map not found.\n");
       return 0;
     }
+    mapOp->keybinds[eventVal].doModify=true;
     mapOp->keybinds[eventVal].actions.push_back(Action(actSwitchMap,mapName));
   } else if ((*args)[eventArg+1]==S("shiftmap")) {
     // shift map (args: 1)
@@ -396,12 +396,12 @@ Command(cmd_addaction) {
       dprintf(output,"usage: addaction <device> <@keymap> <event> shiftmap <map>\n");
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     mapName=(*args)[eventArg+2];
     if (dev[index]->findMap(mapName)<0) {
       dprintf(output,"error: binding map not found.\n");
       return 0;
     }
+    mapOp->keybinds[eventVal].doModify=true;
     mapOp->keybinds[eventVal].actions.push_back(Action(actShiftMap,mapName));
   } else if ((*args)[eventArg+1]==S("macro")) {
     // macro (args: at least 1)
@@ -418,11 +418,12 @@ Command(cmd_addaction) {
                       );
       return 0;
     }
-    mapOp->keybinds[eventVal].doModify=true;
     mapName=(*args)[eventArg+2];
     for (auto& i: macros) {
       if (i->name==mapName) {
+        mapOp->keybinds[eventVal].doModify=true;
         mapOp->keybinds[eventVal].actions.push_back(Action(actMacro,mapName));
+        return 1;
       }
     }
     dprintf(output,"error: binding macro not found.\n");
