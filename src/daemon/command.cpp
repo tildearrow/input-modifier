@@ -997,6 +997,23 @@ Command(cmd_newmacro) {
   return 1;
 }
 
+// TODO: prevent crashes by deleting when playing
+Command(cmd_delmacro) {
+  if (args->size()<2) {
+    dprintf(output,"usage: delmacro <name>\n");
+    return 0;
+  }
+  for (size_t i=0; i<macros.size(); i++) {
+    if (macros[i]->name==(*args)[1]) {
+      delete macros[i];
+      macros.erase(macros.begin()+i);
+      return 1;
+    }
+  }
+  dprintf(output,"error: macro not found.\n");
+  return 0;
+}
+
 Command(cmd_copymacro) {
   Macro* src=NULL;
   Macro* dest;
@@ -1212,9 +1229,9 @@ const AvailCommands cmds[]={
   {"switchmap", cmd_switchmap},
 
   {"newmacro", cmd_newmacro},
-  {"copymacro", cmd_copymacro},/*
+  {"copymacro", cmd_copymacro},
   {"delmacro", cmd_delmacro},
-  */{"listmacros", cmd_listmacros},
+  {"listmacros", cmd_listmacros},
   {"insmacroact", cmd_insmacroact},/*
   {"delmacroact", cmd_delmacroact},
   {"recordmacro", cmd_recordmacro},
