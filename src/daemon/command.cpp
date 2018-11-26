@@ -1059,11 +1059,50 @@ Command(cmd_listmacros) {
 }
 
 Command(cmd_recordmacro) {
+  Macro* where;
+  int stopKey;
   if (args->size()<3) {
-    dprintf(output,"usage: recordmacro <device> <macro> [stopkey]\n");
+    dprintf(output,"usage: recordmacro <device> <macro> [stopkey] [recordDelay] [stopAfter]\n");
     return 0;
   }
-  dprintf(output,"sorry, to-do.\n");
+  
+  IndexedCommand
+  
+  where=NULL;
+  for (auto* i: macros) {
+    if (i->name==(*args)[1]) {
+      where=i;
+      break;
+    }
+  }
+
+  if (where==NULL) {
+    dprintf(output,"error: that macro doesn't exist.\n");
+    return 0;
+  }
+
+  stopKey=KEY_ESC;
+  if (args->size()>3) {
+    try {
+      stopKey=stoi((*args)[3]);
+    } catch (std::exception& err) {
+      if ((stopKey=findKey((*args)[3].c_str()))==-1) {
+        dprintf(output,"error: invalid stop key code.\n");
+        return 0;
+      }
+    }
+    if (stopKey<0 || stopKey>KEY_CNT) {
+      dprintf(output,"error: stop key code out of range.\n");
+      return 0;
+    }
+  }
+
+  // delay and max time to be done
+
+  if (!dev[index]->recordMacro(where,stopKey,0,-1)) {
+    dprintf(output,"error: this device is already recording a macro.\n");
+    return 0;
+  }
   return 1;
 }
 
@@ -1168,6 +1207,43 @@ Command(cmd_insmacroact) {
   return 1;
 }
 
+Command(cmd_delmacroact) {
+  Macro* where;
+  int actionVal;
+  if (args->size()<3) {
+    dprintf(output,"usage: delmacroact <macro> <index>\n");
+    return 0;
+  }
+
+  where=NULL;
+  for (auto* i: macros) {
+    if (i->name==(*args)[1]) {
+      where=i;
+      break;
+    }
+  }
+
+  if (where==NULL) {
+    dprintf(output,"error: that macro doesn't exist.\n");
+    return 0;
+  }
+
+  try {
+    actionVal=stoi((*args)[2]);
+  } catch (std::exception& err) {
+    dprintf(output,"error: invalid action index.\n");
+    return 0;
+  }
+
+  if (actionVal<0 || (size_t)actionVal>=where->actions.size()) {
+    dprintf(output,"error: action index out of range (0-%lu).\n",where->actions.size()-1);
+    return 0;
+  }
+
+  where->actions.erase(where->actions.begin()+actionVal);
+  return 1;
+}
+
 Command(cmd_version) {
   dprintf(output,
   "input-modifier (version " IMOD_VERSION ")\n"
@@ -1232,9 +1308,9 @@ const AvailCommands cmds[]={
   {"copymacro", cmd_copymacro},
   {"delmacro", cmd_delmacro},
   {"listmacros", cmd_listmacros},
-  {"insmacroact", cmd_insmacroact},/*
+  {"insmacroact", cmd_insmacroact},
   {"delmacroact", cmd_delmacroact},
-  {"recordmacro", cmd_recordmacro},
+  {"recordmacro", cmd_recordmacro},/*
   {"playmacro", cmd_playmacro},
   {"stopmacro", cmd_stopmacro},
 */

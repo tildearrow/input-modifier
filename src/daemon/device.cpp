@@ -372,6 +372,42 @@ int Device::findMap(string name) {
   return -1;
 }
 
+bool Device::recordMacro(Macro* which, int stopKey, int delay, int maxTime) {
+  if (recording!=NULL) {
+    return false;
+  }
+  imLogD("%s: recording macro\n",name.c_str());
+  recording=which;
+  recordStopKey=stopKey;
+  return true;
+}
+
+#define writeToMacroKey \
+  if (recording!=NULL) { \
+    if (wire.code!=recordStopKey) { \
+      if (wire.value!=2) { \
+        recording->actions.push_back(Action(actKey,wire.code,wire.value)); \
+      } \
+    } else { \
+      recording=NULL; \
+      imLogD("%s: macro recording finished.\n",name.c_str()); \
+    } \
+  }
+
+#define writeToMacroRel \
+  if (recording!=NULL) { \
+    recording->actions.push_back(Action(actRel,wire.code,wire.value)); \
+  }
+
+#define writeToMacroNondeterm \
+  if (recording!=NULL) { \
+    if (wire.type==EV_KEY) { \
+      writeToMacroKey \
+    } else if (wire.type==EV_REL) { \
+      writeToMacroRel \
+    } \
+  }
+
 void Device::run() {
   struct timespec ctime, otime, curTimeSingle;
   struct input_event event;
@@ -483,6 +519,7 @@ void Device::run() {
           wire.value=smallest->phase;
           write(uinputfd,&wire,sizeof(struct input_event));
           write(uinputfd,&syncev,sizeof(struct input_event));
+          writeToMacroKey
         } else {
           imLogW("%s: smallest is a nihil!\n",name.c_str());
         } 
@@ -496,6 +533,7 @@ void Device::run() {
           wire.value=smallestRC->value;
           write(uinputfd,&wire,sizeof(struct input_event));
           write(uinputfd,&syncev,sizeof(struct input_event));
+          writeToMacroRel
         } else {
           imLogW("%s: smallestRC is a nihil!\n",name.c_str());
         } 
@@ -598,6 +636,7 @@ void Device::run() {
       if (event.type==EV_KEY && event.value<2) pressedKeys[event.code]=event.value;
       wire=event;
       write(uinputfd,&wire,sizeof(struct input_event));
+      writeToMacroNondeterm
     } else {
       switch (event.type) {
         case EV_KEY:
@@ -611,6 +650,7 @@ void Device::run() {
                   wire.value=event.value;
                   write(uinputfd,&wire,sizeof(struct input_event));
                   write(uinputfd,&syncev,sizeof(struct input_event));
+                  writeToMacroKey
                   break;
                 case actTurbo:
                   if (event.value<2) pressedKeys[i.code]=event.value;
@@ -622,6 +662,7 @@ void Device::run() {
                     wire.value=1;
                     write(uinputfd,&wire,sizeof(struct input_event));
                     write(uinputfd,&syncev,sizeof(struct input_event));
+                    writeToMacroKey
                   } else if (event.value==0) {
                     imLogD("disabling turbo\n");
                     for (std::vector<activeTurbo>::iterator j=runTurbo.begin(); j!=runTurbo.end(); j++) {
@@ -632,6 +673,7 @@ void Device::run() {
                           wire.value=0;
                           write(uinputfd,&wire,sizeof(struct input_event));
                           write(uinputfd,&syncev,sizeof(struct input_event));
+                          writeToMacroKey
                         }
                         runTurbo.erase(j);
                         break;
@@ -646,6 +688,7 @@ void Device::run() {
                     wire.value=i.value;
                     write(uinputfd,&wire,sizeof(struct input_event));
                     write(uinputfd,&syncev,sizeof(struct input_event));
+                    writeToMacroRel
                   }
                   break;
                 case actRelConst:
@@ -657,6 +700,7 @@ void Device::run() {
                     wire.value=i.value;
                     write(uinputfd,&wire,sizeof(struct input_event));
                     write(uinputfd,&syncev,sizeof(struct input_event));
+                    writeToMacroRel
                   } else if (event.value==0) {
                     imLogD("disabling relconst\n");
                     for (std::vector<activeRelConst>::iterator j=runRelConst.begin(); j!=runRelConst.end(); j++) {
@@ -741,6 +785,7 @@ void Device::run() {
             if (event.value<2) pressedKeys[event.code]=event.value;
             wire=event;
             write(uinputfd,&wire,sizeof(struct input_event));
+            writeToMacroKey
           }
           break;
         case EV_REL:
@@ -749,6 +794,7 @@ void Device::run() {
           } else {
             wire=event;
             write(uinputfd,&wire,sizeof(struct input_event));
+            writeToMacroRel
           }
           break;
         case EV_SW:

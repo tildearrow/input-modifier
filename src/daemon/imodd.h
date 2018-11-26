@@ -204,6 +204,9 @@ class Device {
 
   string curProfile;
 
+  Macro* recording;
+  int recordStopKey;
+
   struct mapStackElement {
     bindSet* map;
     int code;
@@ -233,6 +236,8 @@ class Device {
     int findMap(string name);
     bool addPath(string p);
     int delPath(string p);
+    bool recordMacro(Macro* where, int stopKey, int delay, int maxTime);
+    bool stopRecord();
     bool switchProfile(string name);
     bool loadState(string path);
     bool saveState(string path);
