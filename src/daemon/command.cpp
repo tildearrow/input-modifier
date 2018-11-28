@@ -1070,7 +1070,7 @@ Command(cmd_recordmacro) {
   
   where=NULL;
   for (auto* i: macros) {
-    if (i->name==(*args)[1]) {
+    if (i->name==(*args)[2]) {
       where=i;
       break;
     }
