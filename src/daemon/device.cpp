@@ -795,6 +795,8 @@ void Device::run() {
                     }
                   }
                   break;
+                case actDisable:
+                  break;
                 default:
                   imLogW("unknown/unimplemented action %d...\n",i.type);
                   break;
