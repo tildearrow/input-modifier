@@ -786,6 +786,7 @@ void Device::run() {
                   if (event.value==1) {
                     for (auto& j: macros) {
                       if (j->name==i.command) {
+                        if (j->actions.empty()) break;
                         imLogD("running macro\n");
                         runMacro.push_back(activeMacro(j));
                         break;

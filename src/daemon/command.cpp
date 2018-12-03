@@ -1051,10 +1051,71 @@ Command(cmd_copymacro) {
   return 1;
 }
 
+Command(cmd_clearmacro) {
+  if (args->size()<2) {
+    dprintf(output,"usage: clearmacro <name>\n");
+    return 0;
+  }
+  for (size_t i=0; i<macros.size(); i++) {
+    if (macros[i]->name==(*args)[1]) {
+      macros[i]->actions.clear();
+      return 1;
+    }
+  }
+  dprintf(output,"error: macro not found.\n");
+  return 0;
+}
+
 Command(cmd_listmacros) {
   for (auto i: macros) {
     dprintf(output,"- %s\n",i->name.c_str());
   }
+  return 1;
+}
+
+Command(cmd_showmacro) {
+  int ic;
+  Macro* where=NULL;
+  if (args->size()<2) {
+    dprintf(output,"usage: showmacro <macro>\n");
+    return 0;
+  }
+  
+  for (auto i: macros) {
+    if (i->name==(*args)[1]) {
+      where=i;
+      break;
+    }
+  }
+  if (where==NULL) {
+    dprintf(output,"error: macro not found.\n");
+    return 0;
+  }
+  
+  for (auto& i: where->actions) {
+    switch (i.type) {
+      case actKey:
+        dprintf(output,"%d: key %s: %s\n",ic,((i.value==1)?("press"):("release")),keynames[i.code]);
+        break;
+      case actRel:
+        dprintf(output,"%d: relative: %s (%d)\n",ic,relnames[i.code],i.value);
+        break;
+      case actAbs:
+        dprintf(output,"%d: absolute: %s (%d)\n",ic,absnames[i.code],i.value);
+        break;
+      case actWait:
+        dprintf(output,"%d: wait %ss\n",ic,tstos(i.timeOn).c_str());
+        break;
+      case actMouseMove:
+        dprintf(output,"%d: mousemove\n",ic);
+        break;
+      default:
+        dprintf(output,"%d: unknown!\n",ic);
+        break;
+    }
+    ic++;
+  }
+
   return 1;
 }
 
@@ -1308,8 +1369,10 @@ const AvailCommands cmds[]={
   {"copymacro", cmd_copymacro},
   {"delmacro", cmd_delmacro},
   {"listmacros", cmd_listmacros},
+  {"showmacro", cmd_showmacro},
   {"insmacroact", cmd_insmacroact},
   {"delmacroact", cmd_delmacroact},
+  {"clearmacro", cmd_clearmacro},
   {"recordmacro", cmd_recordmacro},
 /* these commands will be finished in a future version.
   {"playmacro", cmd_playmacro},
