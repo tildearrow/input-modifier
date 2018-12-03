@@ -120,6 +120,10 @@ bool Device::saveProfile(string path, string dirpath) {
   json actionPart;
   std::vector<json> mapPart;
   
+  if (curmap==NULL) {
+    imLogW("no current map!\n");
+    return false;
+  }
   data["curmap"]=curmap->name;
   data["mappings"]=json::array();
   
@@ -213,6 +217,8 @@ bool Device::loadState(string path) {
     curProfile=data["profile"];
     
     if (!loadProfile(path+S("/")+curProfile+S(".json"))) {
+      mappings.push_back(new bindSet("Default"));
+      curmap=mappings[0];
       saveProfile(path+S("/")+curProfile+S(".json"),path);
     }
   } catch (nlohmann::json::exception& err) {
