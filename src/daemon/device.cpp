@@ -376,7 +376,7 @@ bool Device::recordMacro(Macro* which, int stopKey, int delay, int maxTime) {
   if (recording!=NULL) {
     return false;
   }
-  imLogD("%s: recording macro\n",name.c_str());
+  imLogI("%s: recording macro\n",name.c_str());
   prevActionTime=mkts(0,0);
   lastActionTime=mkts(0,0);
   recording=which;
@@ -402,7 +402,7 @@ bool Device::recordMacro(Macro* which, int stopKey, int delay, int maxTime) {
       } \
     } else { \
       recording=NULL; \
-      imLogD("%s: macro recording finished.\n",name.c_str()); \
+      imLogI("%s: macro recording finished.\n",name.c_str()); \
     } \
   }
 
@@ -559,7 +559,6 @@ void Device::run() {
         // do macro
         doubleBreak=false;
         if (smallestM!=NULL) {
-          imLogD("doing macro\n");
           do {
             Action& a=smallestM->which->actions[smallestM->actionIndex];
             switch (a.type) {
@@ -594,7 +593,6 @@ void Device::run() {
           // this code is to be probably improved
           for (std::vector<activeMacro>::iterator i=runMacro.begin(); i!=runMacro.end(); i++) {
             if (i->actionIndex>=i->which->actions.size()) {
-              imLogD("erasing\n");
               runMacro.erase(i);
               break;
             }

@@ -1310,7 +1310,8 @@ const AvailCommands cmds[]={
   {"listmacros", cmd_listmacros},
   {"insmacroact", cmd_insmacroact},
   {"delmacroact", cmd_delmacroact},
-  {"recordmacro", cmd_recordmacro},/*
+  {"recordmacro", cmd_recordmacro},
+/* these commands will be finished in a future version.
   {"playmacro", cmd_playmacro},
   {"stopmacro", cmd_stopmacro},
 */
