@@ -97,6 +97,10 @@ bool operator ==(const struct timespec& l, const struct timespec& r) {
   return (l.tv_sec==r.tv_sec && l.tv_nsec==r.tv_nsec);
 }
 
+bool operator !=(const struct timespec& l, const struct timespec& r) {
+  return (!(l==r));
+}
+
 struct timespec operator -(const struct timespec& l, const long& r) {
   struct timespec ret;
   ret=l;

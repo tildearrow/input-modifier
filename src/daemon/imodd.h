@@ -44,6 +44,7 @@ int imLogW(const char* format, ...);
 int imLogE(const char* format, ...);
 
 bool operator ==(const struct timespec& l, const struct timespec& r);
+bool operator !=(const struct timespec& l, const struct timespec& r);
 bool operator >(const struct timespec& l, const struct timespec& r);
 bool operator <(const struct timespec& l, const struct timespec& r);
 struct timespec operator +(const struct timespec& l, const struct timespec& r);
@@ -205,6 +206,7 @@ class Device {
   string curProfile;
 
   Macro* recording;
+  struct timespec prevActionTime, lastActionTime;
   int recordStopKey;
 
   struct mapStackElement {
