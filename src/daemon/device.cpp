@@ -381,6 +381,7 @@ bool Device::recordMacro(Macro* which, int stopKey, int delay, int maxTime) {
   lastActionTime=mkts(0,0);
   recording=which;
   recordStopKey=stopKey;
+  ignoreRecord=pressedKeys;
   return true;
 }
 
@@ -388,12 +389,16 @@ bool Device::recordMacro(Macro* which, int stopKey, int delay, int maxTime) {
   if (recording!=NULL) { \
     if (wire.code!=recordStopKey) { \
       if (wire.value!=2) { \
-        prevActionTime=lastActionTime; \
-        lastActionTime=curTime(CLOCK_MONOTONIC); \
-        if (prevActionTime!=mkts(0,0)) { \
-          recording->actions.push_back(Action(actWait,lastActionTime-prevActionTime)); \
+        if (wire.value==0 && ignoreRecord[wire.code]) { \
+          ignoreRecord[wire.code]=0; \
+        } else { \
+          prevActionTime=lastActionTime; \
+          lastActionTime=curTime(CLOCK_MONOTONIC); \
+          if (prevActionTime!=mkts(0,0)) { \
+            recording->actions.push_back(Action(actWait,lastActionTime-prevActionTime)); \
+          } \
+          recording->actions.push_back(Action(actKey,wire.code,wire.value)); \
         } \
-        recording->actions.push_back(Action(actKey,wire.code,wire.value)); \
       } \
     } else { \
       recording=NULL; \

@@ -202,6 +202,7 @@ class Device {
   std::vector<activeMacro> runMacro;
   std::vector<activeDelayed> runDelayedEvent;
   std::bitset<KEY_CNT> pressedKeys;
+  std::bitset<KEY_CNT> ignoreRecord;
 
   string curProfile;
 
