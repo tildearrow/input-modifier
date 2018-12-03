@@ -2,6 +2,7 @@
 #include <fstream>
 #include "../json/json.hpp"
 
+#define ACTION_NAMES_SIZE 12
 const char* actionNames[]={
   "key",
   "turbo",
@@ -52,7 +53,7 @@ bool Device::loadProfile(string path) {
       mappings[mapIndex]->keybinds[bindCode].doModify=true;
       for (auto& k: j["actions"]) {
         actName=k["type"];
-        for (int l=0; l<9; l++) {
+        for (int l=0; l<ACTION_NAMES_SIZE; l++) {
           if (S(actionNames[l])==actName) {
             actType=l;
             break;
