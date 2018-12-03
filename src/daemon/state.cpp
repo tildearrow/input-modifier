@@ -257,3 +257,40 @@ bool Device::saveState(string path) {
   
   return true;
 }
+
+bool saveMacros(string path) {
+  using namespace nlohmann;
+  std::ofstream f;
+  json data;
+  json macroPart;
+  json actionPart;
+  for (auto& i: macros) {
+    macroPart["name"]=i->name;
+    for (auto& j: i->actions) {
+      actionPart["type"]=actionNames[j.type];
+      switch (j.type) {
+        case actKey: case actRel: case actAbs:
+          actionPart["code"]=j.code;
+          actionPart["value"]=j.value;
+          break;
+        case actWait:
+          actionPart["time"]={j.timeOn.tv_sec, j.timeOn.tv_nsec};
+          break;
+        default:
+          actionPart["type"]="disable";
+          break;
+      }
+      macroPart["actions"].push_back(actionPart);
+    }
+    data.push_back(macroPart);
+  }
+  
+  f.open(path);
+  if (f.is_open()) {
+    f<<data;
+  } else {
+    imLogE("couldn't save macros: %s\n",strerror(errno));
+    return false;
+  }
+  return true;
+}

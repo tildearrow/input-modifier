@@ -172,6 +172,8 @@ struct activeMacro {
 // macros are global
 extern std::vector<Macro*> macros;
 
+bool saveMacros(string path);
+
 class Device {
   int fd[8];
   int fds;

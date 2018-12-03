@@ -135,6 +135,7 @@ int main(int argc, char** argv) {
           i->deactivate();
         }
         i->saveState(configDir+i->getSaneName());
+        saveMacros(configDir+S("macros.json"));
       }
       break;
     }
@@ -144,6 +145,7 @@ int main(int argc, char** argv) {
           i->deactivate();
         }
         i->saveState(configDir+i->getSaneName());
+        saveMacros(configDir+S("macros.json"));
       }
       raise(SIGSTOP);
       ststpH.sa_handler=stopHandler;
