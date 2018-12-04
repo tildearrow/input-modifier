@@ -276,7 +276,7 @@ bool loadMacros(string path) {
   // TODO
   try {
     for (auto& i: data["macros"]) {
-      toAdd=new Macro(data["name"]);
+      toAdd=new Macro(i["name"]);
       for (auto& j: i["actions"]) {
         actName=j["type"];
         for (int k=0; k<ACTION_NAMES_SIZE; k++) {
@@ -290,7 +290,7 @@ bool loadMacros(string path) {
             toAdd->actions.push_back(Action(actType,j["code"],j["value"]));
             break;
           case actWait:
-            toAdd->actions.push_back(Action(actWait,mkts(j["timeOn"][0],j["timeOn"][1])));
+            toAdd->actions.push_back(Action(actWait,mkts(j["time"][0],j["time"][1])));
             break;
           default:
             break;
@@ -299,7 +299,7 @@ bool loadMacros(string path) {
       macros.push_back(toAdd);
     }
   } catch (nlohmann::json::exception& err) {
-    imLogW("couldn't load macros!\n");
+    imLogW("couldn't load macros! (%s)\n",err.what());
     return false;
   }
 
@@ -315,6 +315,7 @@ bool saveMacros(string path) {
   data["macros"]=json::array();
   for (auto& i: macros) {
     macroPart["name"]=i->name;
+    macroPart["actions"]=json::array();
     for (auto& j: i->actions) {
       actionPart["type"]=actionNames[j.type];
       switch (j.type) {
