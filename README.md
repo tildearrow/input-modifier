@@ -1,6 +1,6 @@
 # input-modifier
 
-uinput based key bindings tool for Linux.
+uinput based key bindings and macros tool for Linux.
 
 # installation
 
@@ -50,8 +50,6 @@ Ready.
 # to-do
 
 this is pretty much unusable in a *real crazy* environment as of now, but otherwise it works.
-
-- macros.
 
 - X11 integration (per-application profile bind, warping cursor and the like).
 
