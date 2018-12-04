@@ -258,12 +258,55 @@ bool Device::saveState(string path) {
   return true;
 }
 
+bool loadMacros(string path) {
+  nlohmann::json data;
+  std::ifstream f;
+  string actName;
+  ActionType actType;
+  Macro* toAdd;
+  f.open(path);
+  
+  if (f.is_open()) {
+    f>>data;
+  } else {
+    return false;
+  }
+  
+  // TODO
+  for (auto& i: data["macros"]) {
+    toAdd=new Macro(data["name"]);
+    for (auto& j: i["actions"]) {
+      actName=j["type"];
+      for (int k=0; k<ACTION_NAMES_SIZE; k++) {
+        if (S(actionNames[k])==actName) {
+          actType=(ActionType)k;
+          break;
+        }
+      }
+      switch (actType) {
+        case actKey: case actRel: case actAbs:
+          toAdd->actions.push_back(Action(actType,j["code"],j["value"]));
+          break;
+        case actWait:
+          toAdd->actions.push_back(Action(actWait,mkts(j["timeOn"][0],j["timeOn"][1])));
+          break;
+        default:
+          break;
+      }
+    }
+    macros.push_back(toAdd);
+  }
+
+  return true;
+}
+
 bool saveMacros(string path) {
   using namespace nlohmann;
   std::ofstream f;
   json data;
   json macroPart;
   json actionPart;
+  data["macros"]=json::array();
   for (auto& i: macros) {
     macroPart["name"]=i->name;
     for (auto& j: i->actions) {
@@ -282,7 +325,7 @@ bool saveMacros(string path) {
       }
       macroPart["actions"].push_back(actionPart);
     }
-    data.push_back(macroPart);
+    data["macros"].push_back(macroPart);
   }
   
   f.open(path);

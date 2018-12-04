@@ -125,6 +125,8 @@ int main(int argc, char** argv) {
       i->activate();
     }
   }
+  imLogI("loading macros...\n");
+  loadMacros(configDir+S("macros.json"));
   imLogI("done! running.\n");
   while (1) {
     pause();
