@@ -334,6 +334,8 @@ bool saveMacros(string path) {
     }
     data["macros"].push_back(macroPart);
   }
+
+  imLogI("saving macros...\n");
   
   f.open(path);
   if (f.is_open()) {

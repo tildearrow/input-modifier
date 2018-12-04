@@ -1092,6 +1092,7 @@ Command(cmd_showmacro) {
     return 0;
   }
   
+  ic=0;
   for (auto& i: where->actions) {
     switch (i.type) {
       case actKey:
