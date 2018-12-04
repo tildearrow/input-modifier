@@ -440,6 +440,7 @@ void Device::run() {
   int amount, count, found, lastread, doWhat;
   bool doubleBreak;
   threadRunning=true;
+  count=0; lastread=0;
   syncev.type=EV_SYN;
   syncev.code=0;
   syncev.value=0;

@@ -43,6 +43,7 @@ void DeviceListener::run() {
   int len, off, tempfd;
   fd_set fdset;
 
+  event=(struct inotify_event*)buf;
   doTimeout=false;
   nextSettle=curTime(CLOCK_MONOTONIC);
   ctime=mkts(0,0);
