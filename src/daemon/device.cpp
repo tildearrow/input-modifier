@@ -20,6 +20,7 @@ Device::Device():
   uinputfd(-1),
   inThread(-1),
   curProfile("Default"),
+  recordStopKey(0),
   inited(false),
   active(false),
   enabled(false),
@@ -37,6 +38,7 @@ Device::Device(string n, string p):
   uinputfd(-1),
   inThread(-1),
   curProfile("Default"),
+  recordStopKey(0),
   inited(false),
   active(false),
   enabled(false),
@@ -402,6 +404,7 @@ bool Device::recordMacro(Macro* which, int stopKey, int delay, int maxTime) {
     } else { \
       recording=NULL; \
       imLogI("%s: macro recording finished.\n",name.c_str()); \
+      recordStopKey=0; \
     } \
   }
 
@@ -533,8 +536,10 @@ void Device::run() {
           wire.type=EV_KEY;
           wire.code=smallest->code;
           wire.value=smallest->phase;
-          write(uinputfd,&wire,sizeof(struct input_event));
-          write(uinputfd,&syncev,sizeof(struct input_event));
+          if (wire.code!=recordStopKey) {
+            write(uinputfd,&wire,sizeof(struct input_event));
+            write(uinputfd,&syncev,sizeof(struct input_event));
+          }
           writeToMacroKey
         } else {
           imLogW("%s: smallest is a nihil!\n",name.c_str());
@@ -664,8 +669,10 @@ void Device::run() {
                   wire.type=EV_KEY;
                   wire.code=i.code;
                   wire.value=event.value;
-                  write(uinputfd,&wire,sizeof(struct input_event));
-                  write(uinputfd,&syncev,sizeof(struct input_event));
+                  if (wire.code!=recordStopKey) {
+                    write(uinputfd,&wire,sizeof(struct input_event));
+                    write(uinputfd,&syncev,sizeof(struct input_event));
+                  }
                   writeToMacroKey
                   break;
                 case actTurbo:
@@ -676,8 +683,10 @@ void Device::run() {
                     wire.type=EV_KEY;
                     wire.code=i.code;
                     wire.value=1;
-                    write(uinputfd,&wire,sizeof(struct input_event));
-                    write(uinputfd,&syncev,sizeof(struct input_event));
+                    if (wire.code!=recordStopKey) {
+                      write(uinputfd,&wire,sizeof(struct input_event));
+                      write(uinputfd,&syncev,sizeof(struct input_event));
+                    }
                     writeToMacroKey
                   } else if (event.value==0) {
                     imLogD("disabling turbo\n");
@@ -803,7 +812,9 @@ void Device::run() {
           } else {
             if (event.value<2) pressedKeys[event.code]=event.value;
             wire=event;
-            write(uinputfd,&wire,sizeof(struct input_event));
+            if (wire.code!=recordStopKey) {
+              write(uinputfd,&wire,sizeof(struct input_event));
+            }
             writeToMacroKey
           }
           break;
