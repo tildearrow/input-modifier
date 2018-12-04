@@ -269,32 +269,38 @@ bool loadMacros(string path) {
   if (f.is_open()) {
     f>>data;
   } else {
+    imLogI("macros will be saved.\n");
     return false;
   }
   
   // TODO
-  for (auto& i: data["macros"]) {
-    toAdd=new Macro(data["name"]);
-    for (auto& j: i["actions"]) {
-      actName=j["type"];
-      for (int k=0; k<ACTION_NAMES_SIZE; k++) {
-        if (S(actionNames[k])==actName) {
-          actType=(ActionType)k;
-          break;
+  try {
+    for (auto& i: data["macros"]) {
+      toAdd=new Macro(data["name"]);
+      for (auto& j: i["actions"]) {
+        actName=j["type"];
+        for (int k=0; k<ACTION_NAMES_SIZE; k++) {
+          if (S(actionNames[k])==actName) {
+            actType=(ActionType)k;
+            break;
+          }
+        }
+        switch (actType) {
+          case actKey: case actRel: case actAbs:
+            toAdd->actions.push_back(Action(actType,j["code"],j["value"]));
+            break;
+          case actWait:
+            toAdd->actions.push_back(Action(actWait,mkts(j["timeOn"][0],j["timeOn"][1])));
+            break;
+          default:
+            break;
         }
       }
-      switch (actType) {
-        case actKey: case actRel: case actAbs:
-          toAdd->actions.push_back(Action(actType,j["code"],j["value"]));
-          break;
-        case actWait:
-          toAdd->actions.push_back(Action(actWait,mkts(j["timeOn"][0],j["timeOn"][1])));
-          break;
-        default:
-          break;
-      }
+      macros.push_back(toAdd);
     }
-    macros.push_back(toAdd);
+  } catch (nlohmann::json::exception& err) {
+    imLogW("couldn't load macros!\n");
+    return false;
   }
 
   return true;
