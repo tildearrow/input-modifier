@@ -97,39 +97,47 @@ this action switches to a different mapping until the mapped key is released.
 addaction <device> [@keymap] <event> shiftmap <map>
 ```
 
+### macro
+
+this action triggers a macro.
+
+```
+addaction <device> [@keymap] <event> macro <name>
+```
+
 ## example(s)
 
 ```
-addaction 0 KEY_UP key KEY_W
-addaction 0 KEY_LEFT key KEY_A
-addaction 0 KEY_DOWN key KEY_S
-addaction 0 KEY_RIGHT key KEY_D
+addaction keyboard KEY_UP key KEY_W
+addaction keyboard KEY_LEFT key KEY_A
+addaction keyboard KEY_DOWN key KEY_S
+addaction keyboard KEY_RIGHT key KEY_D
 ```
 
 this turns the arrow keys into WASD ones.
 
 ```
-addaction 0 KEY_TAB turbo BTN_LEFT 0.03 0.03
+addaction keypad KEY_TAB turbo BTN_LEFT 0.03 0.03
 ```
 
 this maps the tab key to do very fast left clicks.
 
 ```
-addaction 0 KEY_RIGHTSHIFT execute /usr/bin/konsole
+addaction keyboard KEY_RIGHTSHIFT execute /usr/bin/konsole
 ```
 
 this opens a terminal on pressing the right shift key.
 
 ```
 newmap Secondary
-addaction 0 @Secondary KEY_1 key BTN_LEFT
-addaction 0 @Secondary KEY_2 key BTN_MIDDLE
-addaction 0 @Secondary KEY_3 key BTN_RIGHT
-addaction 0 @Secondary KEY_W relconst REL_Y -6 0.02
-addaction 0 @Secondary KEY_A relconst REL_X -6 0.02
-addaction 0 @Secondary KEY_S relconst REL_Y 6 0.02
-addaction 0 @Secondary KEY_D relconst REL_X 6 0.02
-addaction 0 KEY_RIGHTCTRL shiftmap Secondary
+addaction keyboard @Secondary KEY_1 key BTN_LEFT
+addaction keyboard @Secondary KEY_2 key BTN_MIDDLE
+addaction keyboard @Secondary KEY_3 key BTN_RIGHT
+addaction keyboard @Secondary KEY_W relconst REL_Y -6 0.02
+addaction keyboard @Secondary KEY_A relconst REL_X -6 0.02
+addaction keyboard @Secondary KEY_S relconst REL_Y 6 0.02
+addaction keyboard @Secondary KEY_D relconst REL_X 6 0.02
+addaction keyboard KEY_RIGHTCTRL shiftmap Secondary
 ```
 
 this makes the right control key turn the left hand side into a mouse as long as it is pressed.

@@ -24,8 +24,27 @@
 - [delaction](delaction.md)
 - [clearactions](clearactions.md)
 
+## macro
+
+- [listmacros](listmacros.md)
+- [newmacro](newmacro.md)
+- [copymacro](copymacro.md)
+- [delmacro](delmacro.md)
+- [showmacro](showmacro.md)
+- [clearmacro](clearmacro.md)
+- [recordmacro](recordmacro.md)
+
+- [insmacroact](insmacroact.md)
+- [delmacroact](delmacroact.md)
+
+## profile
+
+- [listprofiles](listprofiles.md)
+- [newprofile](newprofile.md)
+- [copyprofile](copyprofile.md)
+- [delprofile](delprofile.md)
+- [switchprofile](switchprofile.md)
+
 ## program
 
 - [version](version.md)
-
-
