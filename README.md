@@ -14,6 +14,12 @@ sudo tar -xvf <RELEASE>.tar.gz
 
 (extracting as root is necessary for the program to work correctly!)
 
+add yourself to the `input` group if not done previously:
+
+```
+sudo usermod -a -G input $USER
+```
+
 # running
 
 run imodd:
