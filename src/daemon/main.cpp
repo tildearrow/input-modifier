@@ -69,12 +69,17 @@ int main(int argc, char** argv) {
   }
   close(tempuifd);
   // set config dir
-  if (getenv("HOME")==NULL) {
-    imLogE("i don't know where's your home directory...\n");
-    return 1;
+  if (getenv("XDG_CONFIG_HOME")==NULL) {
+    if (getenv("HOME")==NULL) {
+      imLogE("i don't know where's your home directory...\n");
+      return 1;
+    }
+    configDir=getenv("HOME");
+    configDir+="/.config/input-modifier";
+  } else {
+    configDir=getenv("XDG_CONFIG_HOME");
+    configDir+="/input-modifier";
   }
-  configDir=getenv("HOME");
-  configDir+="/.config/input-modifier";
   if (access(configDir.c_str(),0)!=F_OK) {
     imLogI("creating config directory (%s)...\n",configDir.c_str());
     if (mkdir(configDir.c_str(),0755)<0) {
