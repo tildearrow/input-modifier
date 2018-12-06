@@ -31,27 +31,7 @@ cd input-modifier/bin
 
 # usage
 
-i'll write documentation in a few days. sorry, I don't have much time.
-but here is a good start
-
-(NOTE: for now you have to write the keycode values as per [linux/input-event-codes.h](https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h))
-
-```
-./imod-cli
-> listdevices
-0: My Device
-Ready.
-> enable 0
-Ready.
-> addaction 0 <KEYCODE> key <NewKeycode>
-Ready.
-> addaction 0 <KEYCODE> turbo <NewKeycode> 0.05 0.05
-Ready.
-> addaction 0 <KEYCODE> execute <ProgramPath> <Arguments...>
-Ready.
-```
-
-(times for turbo and relconst (which I will document later) are in seconds)
+documentation can be found [here](doc/README.md).
 
 # to-do
 

@@ -12,6 +12,8 @@ to create a macro, type:
 > newmacro macro1
 ```
 
+(note that macro names can't have spaces)
+
 ## recording to a macro
 
 the easiest way to prepare a macro is to simply record to it. to do so:
@@ -66,6 +68,42 @@ to see your macros, type the following:
 
 ## why not manually create the macro?
 
-yes, you can, but it is harder. more on that in the advanced section.
+yes, you can.
 
-onwards to [profiles](profiles.md).
+it is much harder to do, but it is possible.
+
+to insert a keypress, type e.g.:
+
+```
+> insmacroact macro1 key KEY_A 1
+```
+
+to insert a key release, type e.g.:
+
+```
+> insmacroact macro1 key KEY_A 0
+```
+
+to insert a delay, type e.g.:
+
+```
+> insmacroact macro1 wait 0.2
+```
+
+(time in seconds)
+
+if you make a mistake, you can type:
+
+```
+> showmacro macro1
+```
+
+then look at the action index you want to delete, and then type:
+
+```
+> delmacroact macro1 5
+```
+
+(the ability to edit actions in-place is coming soon)
+
+next page is [profiles](profiles.md).
