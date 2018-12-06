@@ -252,24 +252,15 @@ bool Device::activate() {
   uinputfd=open("/dev/uinput",O_RDWR);
   if (uinputfd<0) {
     imLogW("couldn't open /dev/uinput for device %s: %s\n",name.c_str(),strerror(errno));
-    imLogW("fixing this problem...\n");
-    if (system(_PREFIX "/bin/imod-uinput-helper")!=0) // or
-    while (system("./imod-uinput-helper")!=0) {
-      imLogW("error while trying to fix this problem for you. retrying...\n");
+    imLogE("try adding yourself to the 'input' group:\n");
+    if (getenv("USER")==NULL) {
+      imLogE("...wait, what? who are you?\n");
+      imLogE("anyway, here is the command:\n");
+      imLogE("sudo usermod -a -G input <USERNAME>\n");
+      return false;
     }
-    uinputfd=open("/dev/uinput",O_RDWR);
-    if (uinputfd<0) {
-      imLogE("still can't access /dev/uinput: %s\n",strerror(errno));
-      imLogE("try adding yourself to the 'input' group:\n");
-      if (getenv("USER")==NULL) {
-        imLogE("...wait, what? who are you?\n");
-        imLogE("anyway, here is the command:\n");
-        imLogE("sudo usermod -a -G input <USERNAME>\n");
-        return 1;
-      }
-      imLogE("sudo usermod -a -G input %s\n",getenv("USER"));
-      return 1;
-    }
+    imLogE("sudo usermod -a -G input %s\n",getenv("USER"));
+    return false;
   }
   memset(&uiconfig,0,sizeof(struct uinput_user_dev));
   strncpy(uiconfig.name,"(mapped) ",UINPUT_MAX_NAME_SIZE);

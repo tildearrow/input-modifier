@@ -39,6 +39,7 @@ void childHandler(int data) {
 int main(int argc, char** argv) {
   struct sigaction sintH, stermH, ststpH, chldH;
   int tempuifd;
+  struct stat uistat;
   memset(&sintH,0,sizeof(struct sigaction));
   memset(&stermH,0,sizeof(struct sigaction));
   memset(&ststpH,0,sizeof(struct sigaction));
@@ -46,16 +47,25 @@ int main(int argc, char** argv) {
   // check permissions of uinput
   tempuifd=open("/dev/uinput",O_RDWR);
   if (tempuifd<0) {
-    imLogW("can't access /dev/uinput: %s\n",strerror(errno));
-    imLogW("fixing this problem for you...\n");
-    if (system(_PREFIX "/bin/imod-uinput-helper")!=0) // or
-    if (system("./imod-uinput-helper")!=0) {
-      imLogE("error while trying to fix this problem for you...\n");
-      return 1;
+    imLogE("can't access /dev/uinput: %s\n",strerror(errno));
+    if (stat("/dev/uinput",&uistat)<0) {
+      if (errno==ENOENT) {
+        imLogE("the uinput module is not loaded, or not available in your kernel.\n");
+        imLogE("try doing:\n");
+        imLogE("sudo modprobe uinput\n");
+        return 1;
+      } else {
+        imLogE("can't even stat /dev/uinput: %s\n",strerror(errno));
+        imLogE("this is not good...\n");
+        imLogE("please report this bug now at https://github.com/tildearrow/input-modifier/issues/new\n");
+        imLogE("thank you.\n");
+        return 1;
+      }
     }
-    tempuifd=open("/dev/uinput",O_RDWR);
-    if (tempuifd<0) {
-      imLogE("still can't access /dev/uinput: %s\n",strerror(errno));
+    // I want to ask. why did they prefix every struct's items if it's inside the struct?!
+    // it's like, i'm typing... sf::sf_RenderWindow w=w.sf_rw_create(sf::sf_VideoMode::sf_vm_getDesktopMode(),"app",sf::sf_Style::sf_st_Close);!!!
+    // check for group
+    if (uistat.st_mode&060) {
       imLogE("try adding yourself to the 'input' group:\n");
       if (getenv("USER")==NULL) {
         imLogE("...wait, what? who are you?\n");
@@ -64,6 +74,11 @@ int main(int argc, char** argv) {
         return 1;
       }
       imLogE("sudo usermod -a -G input %s\n",getenv("USER"));
+      return 1;
+    } else {
+      imLogE("it seems that the uinput udev rule didn't work out well.\n");
+      imLogE("please report this bug now at https://github.com/tildearrow/input-modifier/issues/new\n");
+      imLogE("thank you.\n");
       return 1;
     }
   }
