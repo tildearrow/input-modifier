@@ -22,6 +22,9 @@ src/helper/main.cpp)
 add_executable(imod-cli
 src/cli/cli.c)
 
+add_executable(imod-newcli
+src/cli/main.cpp)
+
 target_link_libraries(imodd pthread)
 
 target_compile_definitions(imodd PUBLIC _PREFIX="${CMAKE_INSTALL_PREFIX}")
