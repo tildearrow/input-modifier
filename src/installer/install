@@ -49,8 +49,8 @@ if [[ $RESPONSE =~ ^[yY].* ]]
        echo "extracting program..."
        tar -C /opt -xvf installdata.tar || { rm -r /opt/input-modifier; exit 1; }
        echo "creating symlinks..."
-       ln -s /usr/bin/imodd /opt/input-modifier/bin/imodd || { rm -r /opt/input-modifier; exit 1; }
-       ln -s /usr/bin/imod-cli /opt/input-modifier/bin/imod-cli || { rm /usr/bin/imodd; rm -r /opt/input-modifier; exit 1; }
+       ln -s /opt/input-modifier/bin/imodd /usr/bin/imodd || { rm -r /opt/input-modifier; exit 1; }
+       ln -s /opt/input-modifier/bin/imod-cli /usr/bin/imod-cli || { rm /usr/bin/imodd; rm -r /opt/input-modifier; exit 1; }
        echo "adding udev rule..."
        install -m644 99-imod.rules /lib/udev/rules.d/ || { rm -r /opt/input-modifier; exit 1; }
        echo "reloading udev rules..."
