@@ -36,14 +36,19 @@ void childHandler(int data) {
   }
 }
 
+void pipeHandler(int data) {
+  imLogW("caught broken pipe signal!\n");
+}
+
 int main(int argc, char** argv) {
-  struct sigaction sintH, stermH, ststpH, chldH;
+  struct sigaction sintH, stermH, ststpH, chldH, spipeH;
   int tempuifd;
   struct stat uistat;
   memset(&sintH,0,sizeof(struct sigaction));
   memset(&stermH,0,sizeof(struct sigaction));
   memset(&ststpH,0,sizeof(struct sigaction));
   memset(&chldH,0,sizeof(struct sigaction));
+  memset(&spipeH,0,sizeof(struct sigaction));
   // check permissions of uinput
   tempuifd=open("/dev/uinput",O_RDWR);
   if (tempuifd<0) {
@@ -132,6 +137,8 @@ int main(int argc, char** argv) {
   sigaction(SIGTSTP,&ststpH,NULL);
   chldH.sa_handler=childHandler;
   sigaction(SIGCHLD,&chldH,NULL);
+  spipeH.sa_handler=pipeHandler;
+  sigaction(SIGPIPE,&spipeH,NULL);
   // initialize interfaces
   if (!sock.init()) {
     return 1;
