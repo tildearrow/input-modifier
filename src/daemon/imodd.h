@@ -34,9 +34,9 @@ typedef std::string string;
 #define LOGLEVEL_INFO 2
 #define LOGLEVEL_DEBUG 3
 
-#define logLevel 3
+#define logLevel 2
 
-#define IMOD_VERSION "1.2"
+#define IMOD_VERSION "1.3"
 
 int imLogD(const char* format, ...);
 int imLogI(const char* format, ...);
