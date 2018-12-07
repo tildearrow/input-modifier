@@ -1,0 +1,27 @@
+#!/bin/bash
+# input-modifier universal installer
+
+INSPATH="/opt/input-modifier"
+RESPONSE=""
+
+if [ -e /opt/input-modifier/bin/imodd ]
+  then echo "input-modifier already installed."
+       exit 1
+fi
+
+if [ -e /usr/bin/imodd ]
+  then echo "input-modifier already installed as a distribution package."
+       exit 1
+fi
+
+if [ $UID -ne 0 ]
+  then echo "you must run this installer as root."
+       exit 1
+fi
+
+echo -n "input-modifier is going to be installed. are you sure about this? (y/N) "
+read RESPONSE
+
+if [[ $RESPONSE =~ ^[yY].* ]]
+  then echo "going ahead."
+fi
