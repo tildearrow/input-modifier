@@ -27,3 +27,5 @@ target_compile_definitions(imodd PUBLIC _PREFIX="${CMAKE_INSTALL_PREFIX}")
 
 install(TARGETS imodd RUNTIME DESTINATION bin)
 install(TARGETS imod-cli RUNTIME DESTINATION bin)
+
+install(DIRECTORY lib/udev DESTINATION lib)
