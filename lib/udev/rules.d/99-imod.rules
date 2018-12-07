@@ -2,6 +2,9 @@
 
 ACTION!="add", GOTO="imEnd"
 
+# this is crazy but it will work perfectly
+SUBSYSTEM=="hid", RUN+="/bin/modprobe uinput"
+
 KERNEL=="uinput", SUBSYSTEM=="misc", GROUP="input", MODE="0660", TAG+="uaccess"
 
 LABEL=="imEnd"
