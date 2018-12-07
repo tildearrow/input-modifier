@@ -10,6 +10,9 @@ make -j4 || exit 1
 make DESTDIR=copy install || exit 1
 cd copy/opt || exit 1
 cp -v ../../../src/installer/uninstall input-modifier || exit 1
+echo "stripping program..."
+strip -s input-modifier/bin/imodd || exit 1
+strip -s input-modifier/bin/imod-cli || exit 1
 tar -cv --owner=root --group=root -f ../../../rel/installdata.tar input-modifier || exit 1
 cd ../../.. || exit 1
 cp -v src/installer/install rel/ || exit 1
