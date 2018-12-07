@@ -5,7 +5,7 @@ echo "creating universal installer..."
 
 mkdir rel || exit 1
 { mkdir instbuild && cd instbuild; } || exit 1
-cmake -DCMAKE_INSTALL_PREFIX=/opt/input-modifier .. || exit 1
+cmake -DCMAKE_C_FLAGS="-static -static-libgcc" -DCMAKE_CXX_FLAGS="-static -static-libstdc++ -static-libgcc" -DCMAKE_INSTALL_PREFIX=/opt/input-modifier .. || exit 1
 make -j4 || exit 1
 make DESTDIR=copy install || exit 1
 cd copy/opt || exit 1
