@@ -4,15 +4,18 @@ uinput based key bindings and macros tool for Linux.
 
 # installation
 
-extract release **as root**:
+extract release:
 
 ```
-sudo tar -xvf <RELEASE>.tar.gz
+tar -xvf <RELEASE>.tar.gz
 ```
 
-(replace \<RELEASE\> with the tarball name)
+run the installer:
 
-(extracting as root is necessary for the program to work correctly!)
+```
+cd input-modifier
+sudo ./install
+```
 
 add yourself to the `input` group if not done previously:
 
@@ -25,8 +28,7 @@ sudo usermod -a -G input $USER
 run imodd:
 
 ```
-cd input-modifier/bin
-./imodd
+imodd
 ```
 
 # usage

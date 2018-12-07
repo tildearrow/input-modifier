@@ -1,8 +1,8 @@
 #!/bin/bash
 # input-modifier universal installer
 
-INSPATH="/opt/input-modifier"
 RESPONSE=""
+INSEXTRAFAIL=0
 
 if [ -e /opt/input-modifier/bin/imodd ]
   then echo "input-modifier already installed."
@@ -19,9 +19,47 @@ if [ $UID -ne 0 ]
        exit 1
 fi
 
+echo "please read the license terms first."
+sleep 2
+less LICENSE || { echo "license file not there..."; exit 1; }
+echo -n "do you agree? (y/N) "
+read LRESPONSE
+
+if [ -z $LRESPONSE ]
+  then echo "can't proceed."
+       exit 1
+fi
+
+if ! [[ $LRESPONSE =~ ^[yY].* ]]
+  then echo "can't proceed."
+       exit 1
+fi
+
 echo -n "input-modifier is going to be installed. are you sure about this? (y/N) "
 read RESPONSE
 
+if [ -z $RESPONSE ]
+  then exit 1
+fi
+
 if [[ $RESPONSE =~ ^[yY].* ]]
   then echo "going ahead."
+       echo "creating program directory..." 
+       mkdir -p /opt/input-modifier || exit 1
+       echo "extracting program..."
+       tar -C /opt -xvf installdata.tar || { rm -r /opt/input-modifier; exit 1; }
+       echo "creating symlinks..."
+       ln -s /usr/bin/imodd /opt/input-modifier/bin/imodd || { rm -r /opt/input-modifier; exit 1; }
+       ln -s /usr/bin/imod-cli /opt/input-modifier/bin/imod-cli || { rm /usr/bin/imodd; rm -r /opt/input-modifier; exit 1; }
+       echo "adding udev rule..."
+       install -m644 99-imod.rules /lib/udev/rules.d/ || { rm -r /opt/input-modifier; exit 1; }
+       echo "reloading udev rules..."
+       { udevadm control --reload-rules && udevadm trigger; } || INSEXTRAFAIL=1
+       echo "installation finished!"
+       if [ $INSEXTRAFAIL -eq 1 ]
+         then echo "however, you may need to reboot before using input-modifier"
+              echo "because we couldn't reload the udev rules."
+       fi
+       echo "add yourself to the input group in order to be able to use the program:"
+       echo "sudo usermod -a -G input <username>"
 fi

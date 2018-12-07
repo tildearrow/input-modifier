@@ -1,0 +1,31 @@
+#!/bin/bash
+# input-modifier uninstaller
+
+if ! [ -e /opt/input-modifier/bin/imodd ]
+  then if ! [ -e /usr/bin/imodd ]
+         then echo "input-modifier not installed."
+         else echo "input-modifier seems to be installed as a distribution package."
+              echo "please refer to your distro's package manager instructions to uninstall it."
+       fi
+       exit 1
+fi
+
+if [ $UID -ne 0 ]
+  then echo "you must run this uninstaller as root."
+       exit 1
+fi
+
+echo -n "uninstalling input-modifier. are you sure about this? (y/N) "
+read RESPONSE
+
+if [[ $RESPONSE =~ ^[yY].* ]]
+  then echo "going ahead."
+       echo "deleting udev rule..."
+       rm /lib/udev/rules.d/99-imod.rules
+       echo "deleting symlinks..."
+       rm /usr/bin/imodd
+       rm /usr/bin/imod-cli
+       echo "deleting program..." 
+       rm -r /opt/input-modifier
+       echo "uninstallation finished."
+fi

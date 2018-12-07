@@ -4,21 +4,28 @@ after downloading input-modifier, please follow these instructions for a proper 
 
 ## extracting
 
-input-modifier comes in a universal binary package. this means it will work with any distribution. this is possible because input-modifier has no dependencies.
+input-modifier comes in a universal binary package, besides some distribution-specific packages. this means it will work with any distribution. this is possible because input-modifier has no dependencies other than udev, which is found in almost every single modern distro.
 
 input-modifier doesn't run as root, to allow for multi-user support in the future.
 
-however, you can't use your favorite archiver as usual, since it requires being extracted as root because it uses a helper tool that sets permissions for uinput.
-
-to install input-modifier, open a terminal, and type the following:
+to install input-modifier, first extract the installer. open a terminal, and type the following:
 
 ```
-sudo tar -xvf <RELEASE>
+tar -xvf <RELEASE>
 ```
 
 (replace <RELEASE> with the name of the input-modifier package, e.g. `imod-v1.2-x86_64.tar.gz`)
 
-this will extract the program to a directory named `input-modifier`.
+this will extract the installer to a directory named `input-modifier`.
+
+to run the installer, type:
+
+```
+cd input-modifier
+sudo ./install
+```
+
+this will install input-modifier to your system after you accept the prompts.
 
 ## input group
 
@@ -34,12 +41,10 @@ after this, you're ready to go. see [startup](startup.md).
 
 ## why not a package?
 
-because I don't have time to publish a package for every single major distribution, or some requirements forbid me from doing so.
-
-but I surely will do so in the near future.
+don't worry, this will eventually happen.
 
 ## what about an AppImage?
 
-this can't happen, because of the uinput helper tool that requires to be extracted as root.
+this can't happen, because of the udev rule that has to be installed.
 
 plus input-modifier has no dependencies, so it wouldn't make sense.
