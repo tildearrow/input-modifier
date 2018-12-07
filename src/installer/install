@@ -55,10 +55,12 @@ if [[ $RESPONSE =~ ^[yY].* ]]
        install -m644 99-imod.rules /lib/udev/rules.d/ || { rm -r /opt/input-modifier; exit 1; }
        echo "reloading udev rules..."
        { udevadm control --reload-rules && udevadm trigger; } || INSEXTRAFAIL=1
+       echo "loading uinput module..."
+       modprobe uinput || INSEXTRAFAIL=1
        echo "installation finished!"
        if [ $INSEXTRAFAIL -eq 1 ]
          then echo "however, you may need to reboot before using input-modifier"
-              echo "because we couldn't reload the udev rules."
+              echo "because we couldn't reload the udev rules or load the uinput module."
        fi
        echo "add yourself to the input group in order to be able to use the program:"
        echo "sudo usermod -a -G input <username>"
