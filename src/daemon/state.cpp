@@ -19,7 +19,7 @@ const char* actionNames[]={
 };
 
 bool Device::loadProfile(string path) {
-  int actType;
+  int actType=actDisable;
   int mapIndex=-1;
   int bindCode;
   std::ifstream f;
@@ -262,7 +262,7 @@ bool loadMacros(string path) {
   nlohmann::json data;
   std::ifstream f;
   string actName;
-  ActionType actType;
+  ActionType actType=actDisable;
   Macro* toAdd;
   f.open(path);
   

@@ -1,13 +1,18 @@
 #include "imodd.h"
 
+#define writeRF(a,b,c) \
+  if (write(a,b,c)<((ssize_t)(c))) { \
+    imLogW("write failure: %s\n",strerror(errno)); \
+  }
+
 #define ReleaseKeys() \
   for (int keyi=0; keyi<KEY_CNT; keyi++) { \
     if (pressedKeys[keyi]) { \
       wire.type=EV_KEY; \
       wire.code=keyi; \
       wire.value=0; \
-      write(uinputfd,&wire,sizeof(struct input_event)); \
-      write(uinputfd,&syncev,sizeof(struct input_event)); \
+      writeRF(uinputfd,&wire,sizeof(struct input_event)); \
+      writeRF(uinputfd,&syncev,sizeof(struct input_event)); \
       pressedKeys[keyi]=false; \
     } \
   }
@@ -265,8 +270,8 @@ bool Device::activate() {
     return false;
   }
   memset(&uiconfig,0,sizeof(struct uinput_user_dev));
-  strncpy(uiconfig.name,"(mapped) ",UINPUT_MAX_NAME_SIZE);
-  strncat(uiconfig.name,name.c_str(),UINPUT_MAX_NAME_SIZE);
+  strncpy(uiconfig.name,"(mapped) ",UINPUT_MAX_NAME_SIZE-1);
+  strncat(uiconfig.name,name.c_str(),UINPUT_MAX_NAME_SIZE-1);
   uiconfig.id.bustype=BUS_VIRTUAL;
   uiconfig.id.product=info.product;
   uiconfig.id.vendor=info.vendor;
@@ -289,7 +294,11 @@ bool Device::activate() {
     uiconfig.absflat[i]=absinfo[i].flat;
   }
 
-  write(uinputfd,&uiconfig,sizeof(struct uinput_user_dev));
+  if (write(uinputfd,&uiconfig,sizeof(struct uinput_user_dev))<(ssize_t)sizeof(struct uinput_user_dev)) {
+    imLogE("couldn't write uinput device config!\n");
+    close(uinputfd);
+    return false;
+  }
   ioctl(uinputfd,UI_DEV_CREATE);
   // create input processing thread
   if (pthread_create(&inThread,NULL,devThread,this)!=0) {
@@ -426,9 +435,9 @@ void Device::run() {
   struct input_event syncev;
   struct input_event wire;
   struct sigaction chldH;
-  activeTurbo* smallest;
-  activeRelConst* smallestRC;
-  activeMacro* smallestM;
+  activeTurbo* smallest=NULL;
+  activeRelConst* smallestRC=NULL;
+  activeMacro* smallestM=NULL;
   fd_set devfd;
   int amount, count, found, lastread, doWhat;
   bool doubleBreak;
@@ -531,8 +540,8 @@ void Device::run() {
           wire.code=smallest->code;
           wire.value=smallest->phase;
           if (wire.code!=recordStopKey) {
-            write(uinputfd,&wire,sizeof(struct input_event));
-            write(uinputfd,&syncev,sizeof(struct input_event));
+            writeRF(uinputfd,&wire,sizeof(struct input_event));
+            writeRF(uinputfd,&syncev,sizeof(struct input_event));
           }
           writeToMacroKey
         } else {
@@ -546,8 +555,8 @@ void Device::run() {
           wire.type=EV_REL;
           wire.code=smallestRC->code;
           wire.value=smallestRC->value;
-          write(uinputfd,&wire,sizeof(struct input_event));
-          write(uinputfd,&syncev,sizeof(struct input_event));
+          writeRF(uinputfd,&wire,sizeof(struct input_event));
+          writeRF(uinputfd,&syncev,sizeof(struct input_event));
           writeToMacroRel
         } else {
           imLogW("%s: smallestRC is a nihil!\n",name.c_str());
@@ -564,15 +573,15 @@ void Device::run() {
                 wire.type=EV_KEY;
                 wire.code=a.code;
                 wire.value=a.value;
-                write(uinputfd,&wire,sizeof(struct input_event));
-                write(uinputfd,&syncev,sizeof(struct input_event));
+                writeRF(uinputfd,&wire,sizeof(struct input_event));
+                writeRF(uinputfd,&syncev,sizeof(struct input_event));
                 break;
               case actRel:
                 wire.type=EV_REL;
                 wire.code=a.code;
                 wire.value=a.value;
-                write(uinputfd,&wire,sizeof(struct input_event));
-                write(uinputfd,&syncev,sizeof(struct input_event));
+                writeRF(uinputfd,&wire,sizeof(struct input_event));
+                writeRF(uinputfd,&syncev,sizeof(struct input_event));
                 break;
               case actWait:
                 wire.type=EV_KEY;
@@ -653,7 +662,7 @@ void Device::run() {
         if (event.value==1) lastKey=event.code;
       }
       wire=event;
-      write(uinputfd,&wire,sizeof(struct input_event));
+      writeRF(uinputfd,&wire,sizeof(struct input_event));
       writeToMacroNondeterm
     } else {
       switch (event.type) {
@@ -667,8 +676,8 @@ void Device::run() {
                   wire.code=i.code;
                   wire.value=event.value;
                   if (wire.code!=recordStopKey) {
-                    write(uinputfd,&wire,sizeof(struct input_event));
-                    write(uinputfd,&syncev,sizeof(struct input_event));
+                    writeRF(uinputfd,&wire,sizeof(struct input_event));
+                    writeRF(uinputfd,&syncev,sizeof(struct input_event));
                   }
                   writeToMacroKey
                   break;
@@ -681,8 +690,8 @@ void Device::run() {
                     wire.code=i.code;
                     wire.value=1;
                     if (wire.code!=recordStopKey) {
-                      write(uinputfd,&wire,sizeof(struct input_event));
-                      write(uinputfd,&syncev,sizeof(struct input_event));
+                      writeRF(uinputfd,&wire,sizeof(struct input_event));
+                      writeRF(uinputfd,&syncev,sizeof(struct input_event));
                     }
                     writeToMacroKey
                   } else if (event.value==0) {
@@ -693,8 +702,8 @@ void Device::run() {
                           wire.type=EV_KEY;
                           wire.code=j->code;
                           wire.value=0;
-                          write(uinputfd,&wire,sizeof(struct input_event));
-                          write(uinputfd,&syncev,sizeof(struct input_event));
+                          writeRF(uinputfd,&wire,sizeof(struct input_event));
+                          writeRF(uinputfd,&syncev,sizeof(struct input_event));
                           writeToMacroKey
                         }
                         runTurbo.erase(j);
@@ -708,8 +717,8 @@ void Device::run() {
                     wire.type=EV_REL;
                     wire.code=i.code;
                     wire.value=i.value;
-                    write(uinputfd,&wire,sizeof(struct input_event));
-                    write(uinputfd,&syncev,sizeof(struct input_event));
+                    writeRF(uinputfd,&wire,sizeof(struct input_event));
+                    writeRF(uinputfd,&syncev,sizeof(struct input_event));
                     writeToMacroRel
                   }
                   break;
@@ -720,8 +729,8 @@ void Device::run() {
                     wire.type=EV_REL;
                     wire.code=i.code;
                     wire.value=i.value;
-                    write(uinputfd,&wire,sizeof(struct input_event));
-                    write(uinputfd,&syncev,sizeof(struct input_event));
+                    writeRF(uinputfd,&wire,sizeof(struct input_event));
+                    writeRF(uinputfd,&syncev,sizeof(struct input_event));
                     writeToMacroRel
                   } else if (event.value==0) {
                     imLogD("disabling relconst\n");
@@ -738,8 +747,8 @@ void Device::run() {
                     wire.type=EV_ABS;
                     wire.code=i.code;
                     wire.value=i.value;
-                    write(uinputfd,&wire,sizeof(struct input_event));
-                    write(uinputfd,&syncev,sizeof(struct input_event));
+                    writeRF(uinputfd,&wire,sizeof(struct input_event));
+                    writeRF(uinputfd,&syncev,sizeof(struct input_event));
                   }
                   break;
                 case actExecute: // TODO: support for environment
@@ -810,7 +819,7 @@ void Device::run() {
             if (event.value<2) pressedKeys[event.code]=event.value;
             wire=event;
             if (wire.code!=recordStopKey) {
-              write(uinputfd,&wire,sizeof(struct input_event));
+              writeRF(uinputfd,&wire,sizeof(struct input_event));
             }
             writeToMacroKey
           }
@@ -821,7 +830,7 @@ void Device::run() {
 
           } else {
             wire=event;
-            write(uinputfd,&wire,sizeof(struct input_event));
+            writeRF(uinputfd,&wire,sizeof(struct input_event));
             writeToMacroRel
           }
           break;
@@ -830,12 +839,12 @@ void Device::run() {
 
           } else {
             wire=event;
-            write(uinputfd,&wire,sizeof(struct input_event));
+            writeRF(uinputfd,&wire,sizeof(struct input_event));
           }
           break;
         default:
           wire=event;
-          write(uinputfd,&wire,sizeof(struct input_event));
+          writeRF(uinputfd,&wire,sizeof(struct input_event));
       }
     }
     // EVENT REWIRING END //

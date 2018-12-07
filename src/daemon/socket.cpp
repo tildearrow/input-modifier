@@ -50,7 +50,11 @@ void* clientThread(void* cli) {
   std::vector<string>* pargs;
   string arg;
   buffer=new char[16384];
-  write(client->fd,"input-modifier\n",strlen("input-modifier\n"));
+  if (write(client->fd,"input-modifier\n",strlen("input-modifier\n"))<0) {
+    imLogI("hey! client %d ran away!\n");
+    close(client->fd);
+    return NULL;
+  }
   // thread loop
   imLogI("client %d connected\n",client->fd);
   while (1) {
@@ -82,9 +86,17 @@ void* clientThread(void* cli) {
     }
     delete pargs;
     if (haveNotFound) {
-      write(client->fd,"Unknown command.\n",strlen("Unknown command.\n"));
+      if (write(client->fd,"Unknown command.\n",strlen("Unknown command.\n"))<0) {
+        imLogI("couldn't tell client %d about its mistake...\n",client->fd);
+        close(client->fd);
+        return NULL;
+      }
     }
-    write(client->fd,"Ready.\n",strlen("Ready.\n"));
+    if (write(client->fd,"Ready.\n",strlen("Ready.\n"))<0) {
+      imLogI("couldn't tell client %d we're ready...\n");
+      close(client->fd);
+      return NULL;
+    }
   }
   close(client->fd);
   imLogI("client %d lost connection\n",client->fd);

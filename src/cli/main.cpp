@@ -94,7 +94,10 @@ int main(int argc, char** argv) {
         printf("\nconnection closed...\n");
         break;
       }
-      write(1,inputBuf,inputBufLen);
+      if (write(1,inputBuf,inputBufLen)<0) {
+        perror("couldn't write command to stdout!");
+        break;
+      }
     }
     if (FD_ISSET(0,&fds)) {
       typeBufLen=read(0,typeBuf,32768);
@@ -111,7 +114,10 @@ int main(int argc, char** argv) {
               nextCharIs=Escape;
               break;
             case '\n':
-              write(sock,line.c_str(),line.size()+1);
+              if (write(sock,line.c_str(),line.size()+1)<0) {
+                perror("couldn't send command");
+                quit=true;
+              }
               printf("> ");
               history.push_back(line);
               historyPos=history.size();
