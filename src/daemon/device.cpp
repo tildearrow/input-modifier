@@ -24,6 +24,7 @@ Device::Device():
   inited(false),
   active(false),
   enabled(false),
+  lastKey(0),
   curmap(NULL) {
   for (int i=0; i<8; i++) {
     fd[i]=-1; path[i]="";
@@ -42,6 +43,7 @@ Device::Device(string n, string p):
   inited(false),
   active(false),
   enabled(false),
+  lastKey(0),
   curmap(NULL) {
   for (int i=0; i<8; i++) {
     fd[i]=-1; path[i]="";
@@ -646,7 +648,10 @@ void Device::run() {
       }
     }
     if (curmap==NULL) {
-      if (event.type==EV_KEY && event.value<2) pressedKeys[event.code]=event.value;
+      if (event.type==EV_KEY && event.value<2) {
+        pressedKeys[event.code]=event.value;
+        if (event.value==1) lastKey=event.code;
+      }
       wire=event;
       write(uinputfd,&wire,sizeof(struct input_event));
       writeToMacroNondeterm
@@ -809,6 +814,7 @@ void Device::run() {
             }
             writeToMacroKey
           }
+          if (event.value==1) lastKey=event.code;
           break;
         case EV_REL:
           if (curmap->relbinds[event.code].doModify) {

@@ -1347,6 +1347,35 @@ Command(cmd_tstest) {
 }
 */
 
+Command(cmd_whichkey) {
+  if (args->size()<2) {
+    dprintf(output,"usage: whichkey <device>\n");
+    return 0;
+  }
+
+  IndexedCommand
+
+  if (!dev[index]->enabled) {
+    dprintf(output,"error: that device isn't enabled.\n");
+    return 0;
+  }
+
+  dprintf(output,"press a key on %s...\n",dev[index]->getName().c_str());
+  dev[index]->lastKey=0;
+  
+  for (int i=0; i<50*5; i++) {
+    usleep(20000);
+    if (dev[index]->lastKey>0) {
+      dprintf(output,"that key's called %s (keycode %d).\n",keynames[dev[index]->lastKey],dev[index]->lastKey);
+      return 1;
+    }
+  }
+
+  dprintf(output,"time is up! try again.\n");
+
+  return 0;
+}
+
 const AvailCommands cmds[]={
   {"addaction", cmd_addaction},
   {"delaction", cmd_delaction},
@@ -1358,6 +1387,7 @@ const AvailCommands cmds[]={
   {"listdevices", cmd_listdevices},
   {"enable", cmd_enable},
   {"disable", cmd_disable},
+  {"whichkey", cmd_whichkey},
   /*
   {"showsettings", cmd_showsettings},
   {"settings", cmd_settings},*/

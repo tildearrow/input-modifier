@@ -18,6 +18,16 @@ to do that, type the following:
 
 (if you're wondering what the key names are, see the following: [input-event-codes.h](https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h))
 
+## I am lost
+
+if you're unsure of a key's name, you can retrieve it by doing:
+
+```
+> whichkey keyboard
+```
+
+and then pressing the key in question.
+
 ## multiple keys
 
 yes, you can.

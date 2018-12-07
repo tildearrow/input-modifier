@@ -225,6 +225,7 @@ class Device {
   struct timespec timeout;
   public:
     bool inited, active, enabled;
+    int lastKey;
     std::vector<bindSet*> mappings;
     bindSet* curmap;
     
