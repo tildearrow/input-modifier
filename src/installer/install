@@ -47,7 +47,8 @@ if [[ $RESPONSE =~ ^[yY].* ]]
        if ! grep -q -E "^input:" /etc/group
          then echo "creating input group..."
               groupadd input || exit 1
-              # TODO: add udev rule insertion for input devices
+              echo "adding input group udev rule..."
+              install -m644 98-imod-ubuntu14.rules /lib/udev/rules.d/ || { rm -r /opt/input-modifier; exit 1; }
        fi
        echo "creating program directory..." 
        mkdir -p /opt/input-modifier || exit 1

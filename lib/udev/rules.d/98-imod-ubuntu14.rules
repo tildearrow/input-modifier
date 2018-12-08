@@ -1,0 +1,7 @@
+# ubuntu 14.04 lack of input group fix
+
+ACTION!="add", GOTO="iu14End"
+
+SUBSYSTEM=="input", GROUP="input", MODE="0660"
+
+LABEL="iu14End"
