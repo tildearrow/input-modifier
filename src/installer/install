@@ -44,6 +44,11 @@ fi
 
 if [[ $RESPONSE =~ ^[yY].* ]]
   then echo "going ahead."
+       if ! grep -q -E "^input:" /etc/group
+         then echo "creating input group..."
+              groupadd input || exit 1
+              # TODO: add udev rule insertion for input devices
+       fi
        echo "creating program directory..." 
        mkdir -p /opt/input-modifier || exit 1
        echo "extracting program..."
