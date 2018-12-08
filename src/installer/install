@@ -55,8 +55,24 @@ if [[ $RESPONSE =~ ^[yY].* ]]
        install -m644 99-imod.rules /lib/udev/rules.d/ || { rm -r /opt/input-modifier; exit 1; }
        echo "reloading udev rules..."
        { udevadm control --reload-rules && udevadm trigger; } || INSEXTRAFAIL=1
+       echo "waiting 2 seconds..."
+       sleep 2
        echo "loading uinput module..."
        modprobe uinput || INSEXTRAFAIL=1
+       if [ -e /dev/uinput ]
+         then echo "setting uinput permissions..."
+              chmod 660 /dev/uinput || INSEXTRAFAIL=1
+              chown root:input /dev/uinput || INSEXTRAFAIL=1
+              sleep 0.5
+              echo "testing udev rule..."
+              touch /dev/uinput
+              sleep 1
+              UISTAT=$(stat -c %a /dev/uinput)
+              if [ $UISTAT == "600" ]
+                then INSEXTRAFAIL=1
+              fi
+         else echo "uinput does not exist..." || INSEXTRAFAIL=1
+       fi
        echo "installation finished!"
        if [ $INSEXTRAFAIL -eq 1 ]
          then echo "however, you may need to reboot before using input-modifier"
