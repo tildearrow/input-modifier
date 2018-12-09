@@ -16,7 +16,7 @@ strip -s input-modifier/bin/imod-cli || exit 1
 tar -cv --owner=root --group=root -f ../../../rel/installdata.tar input-modifier || exit 1
 cd ../../.. || exit 1
 cp -v src/installer/install rel/ || exit 1
-cp -v lib/udev/rules.d/98-imod-ubuntu14.rules rel/ || exit 1
+cp -v src/installer/98-imod-ubuntu14.rules rel/ || exit 1
 cp -v lib/udev/rules.d/99-imod.rules rel/ || exit 1
 cp -v LICENSE rel/ || exit 1
 cp -v README.md rel/ || exit 1
