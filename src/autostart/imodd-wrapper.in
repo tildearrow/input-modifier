@@ -1,0 +1,15 @@
+#!/bin/sh
+# XDG autostarter
+# to be done
+
+@INSTALL_PREFIX@/bin/imodd &
+PID=$$
+
+DESKTOP_PID=0
+
+DESKTOP_PID=`pgrep -u $UID -f ksmserver`
+DESKTOP_PID=`pgrep -u $UID -f gnome-shell`
+DESKTOP_PID=`pgrep -u $UID -f openbox`
+
+wait $DESKTOP_PID
+kill $PID

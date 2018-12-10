@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=input-modifier
+Comment=uinput-based key bindings tool
+Keywords=keyboard
+NoDisplay=false
+Exec=/usr/bin/imodd-wrapper
+Terminal=false
+Type=Application
+X-GNOME-Autostart-Phase=Applications
+X-GNOME-AutoRestart=false
