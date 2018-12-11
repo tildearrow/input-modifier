@@ -38,6 +38,12 @@ typedef std::string string;
 
 #define IMOD_VERSION "1.3.1"
 
+#ifdef _WIN32
+#define IMOD_EXPORT __declspec(dllexport)
+#else
+#define IMOD_EXPORT __attribute__((visibility("default")))
+#endif
+
 int imLogD(const char* format, ...);
 int imLogI(const char* format, ...);
 int imLogW(const char* format, ...);
