@@ -312,3 +312,17 @@ class DeviceListener {
 
 int scanDev(std::vector<Device*>& populate);
 int processDev(std::vector<Device*>& populate, string name);
+
+// ~~~ { [ > -> PLUGIN FUNCTIONS <- < ] } ~~~ //
+
+enum PluginEventType {
+  plugInputEvent=0,
+  plugDevicePlugEvent
+};
+
+struct PluginInfo {
+  string name;
+  string author;
+  std::vector<AvailCommands> commands;
+  bool listenToEvent[2];
+};
