@@ -326,3 +326,10 @@ struct PluginInfo {
   std::vector<AvailCommands> commands;
   bool listenToEvent[2];
 };
+
+struct LoadedPlugin {
+  PluginInfo info;
+  PluginInfo* (*getInfo)(void);
+  bool (*init)(void);
+  bool (*quit)(void);
+};
