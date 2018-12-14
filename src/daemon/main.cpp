@@ -6,6 +6,8 @@ SocketInterface sock;
 
 DeviceListener* list;
 
+LoadedPlugin testPlug;
+
 string configDir;
 
 enum {
@@ -154,6 +156,13 @@ int main(int argc, char** argv) {
   }
   imLogI("loading macros...\n");
   loadMacros(configDir+S("macros.json"));
+  imLogI("loading plugins...\n");
+  if (!testPlug.loadFile("./src/daemon/plugin/test/libimodplugintest.so")) {
+    imLogW("plugin not loaded.\n");
+  }
+  if (!testPlug.init()) {
+    imLogW("couldn't init plugin...\n");
+  }
   imLogI("done! running.\n");
   while (1) {
     pause();
