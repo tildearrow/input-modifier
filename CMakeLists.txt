@@ -13,6 +13,7 @@ src/daemon/device.cpp
 src/daemon/state.cpp
 src/daemon/command.cpp
 src/daemon/socket.cpp
+src/daemon/plugin.cpp
 src/daemon/main.cpp)
 
 add_executable(imod-cli
@@ -21,7 +22,9 @@ src/cli/cli.c)
 add_executable(imod-newcli
 src/cli/main.cpp)
 
-target_link_libraries(imodd pthread)
+add_subdirectory(src/daemon/plugin/test)
+
+target_link_libraries(imodd dl pthread)
 
 target_compile_definitions(imodd PUBLIC _PREFIX="${CMAKE_INSTALL_PREFIX}")
 

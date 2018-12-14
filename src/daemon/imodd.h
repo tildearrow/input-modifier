@@ -11,6 +11,7 @@
 #include <queue>
 #include <fcntl.h>
 #include <unistd.h>
+#include <dlfcn.h>
 #include <sys/types.h>
 #include <sys/select.h>
 #include <sys/socket.h>
@@ -321,15 +322,27 @@ enum PluginEventType {
 };
 
 struct PluginInfo {
+  // PLUGIN-WRITABLE VARIABLES //
   string name;
   string author;
   std::vector<AvailCommands> commands;
   bool listenToEvent[2];
+
+  // INPUT-MODIFIER-WRITABLE VARIABLES //
+  std::vector<Device*>* devices;
+  std::vector<Macro*>* macros;
 };
 
-struct LoadedPlugin {
-  PluginInfo info;
-  PluginInfo* (*getInfo)(void);
-  bool (*init)(void);
-  bool (*quit)(void);
+class LoadedPlugin {
+  PluginInfo* info;
+  void* handle;
+  public:
+    PluginInfo* (*getInfo)(void);
+    bool (*init)(void);
+    bool (*quit)(void);
+    bool loadFile(string path);
+    LoadedPlugin(): info(NULL), handle(NULL), getInfo(NULL), init(NULL), quit(NULL) {}
+    ~LoadedPlugin() {
+      if (handle!=NULL) dlclose(handle);
+    }
 };
