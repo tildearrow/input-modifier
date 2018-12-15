@@ -346,3 +346,5 @@ class LoadedPlugin {
       if (handle!=NULL) dlclose(handle);
     }
 };
+
+void testExtern();

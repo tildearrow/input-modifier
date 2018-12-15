@@ -19,6 +19,7 @@ IMOD_EXPORT PluginInfo* imodPluginGetInfo() {
 }
 
 IMOD_EXPORT bool imodPluginInit() {
+  testExtern();
   return true;
 }
 

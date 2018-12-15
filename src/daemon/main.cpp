@@ -42,6 +42,10 @@ void pipeHandler(int data) {
   imLogW("caught broken pipe signal!\n");
 }
 
+void testExtern() {
+  imLogI("hello from the daemon!\n");
+}
+
 int main(int argc, char** argv) {
   struct sigaction sintH, stermH, ststpH, chldH, spipeH;
   int tempuifd;
