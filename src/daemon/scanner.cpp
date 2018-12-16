@@ -86,3 +86,36 @@ int scanDev(std::vector<Device*>& populate) {
   if (permden) return -2;
   return populate.size();
 }
+
+int scanAndLoadPlugins(std::vector<LoadedPlugin*>& populate) {
+  LoadedPlugin* p;
+  struct dirent* subject;
+  DIR* plugDir;
+  
+  plugDir=opendir(PLUGIN_DIR);
+  if (plugDir==NULL) {
+    imLogW("error while trying to scan plugins: %s",strerror(errno));
+    return -1;
+  }
+  
+  while ((subject=readdir(plugDir))!=NULL) {
+    if (subject->d_type!=DT_REG) continue;
+    p=new LoadedPlugin;
+    if (!p->loadFile(PLUGIN_DIR+S("/")+S(subject->d_name))) {
+      imLogW("plugin not loaded.\n");
+      delete p;
+      continue;
+    }
+    imLogI("initializing plugin %s...\n",p->info->name.c_str());
+    if (!p->init()) {
+      imLogW("couldn't init plugin %s!\n",p->info->name.c_str());
+      delete p;
+      continue;
+    }
+    populate.push_back(p);
+  }
+  
+  closedir(plugDir);
+  
+  return populate.size();
+}

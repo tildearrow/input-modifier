@@ -5,8 +5,6 @@
 // this is all 'cuz I deeply fell in love with this lady but hasn't been back in a
 // very long time... yet still am thinking of her and want her to return...
 
-// TODO: test out the dragons
-
 PluginInfo pinfo;
 
 IMOD_EXPORT PluginInfo* imodPluginGetInfo() {

@@ -25,6 +25,7 @@
 #include <linux/uinput.h>
 
 #define DEVICE_DIR "/dev/input"
+#define PLUGIN_DIR "./plugins"
 
 typedef std::string string;
 
@@ -334,17 +335,20 @@ struct PluginInfo {
 };
 
 class LoadedPlugin {
-  PluginInfo* info;
   void* handle;
   public:
+    PluginInfo* info;
     PluginInfo* (*getInfo)(void);
     bool (*init)(void);
     bool (*quit)(void);
     bool loadFile(string path);
-    LoadedPlugin(): info(NULL), handle(NULL), getInfo(NULL), init(NULL), quit(NULL) {}
+    LoadedPlugin(): handle(NULL), info(NULL), getInfo(NULL), init(NULL), quit(NULL) {}
     ~LoadedPlugin() {
       if (handle!=NULL) dlclose(handle);
+      if (info!=NULL) delete info;
     }
 };
 
 void testExtern();
+
+int scanAndLoadPlugins(std::vector<LoadedPlugin*>& populate);
