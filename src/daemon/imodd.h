@@ -319,7 +319,10 @@ int processDev(std::vector<Device*>& populate, string name);
 
 enum PluginEventType {
   plugInputEvent=0,
-  plugDevicePlugEvent
+  plugDevicePlugEvent,
+  plugChangeProfileEvent,
+  plugChangeKeymapEvent,
+  plugActionEvent
 };
 
 struct PluginInfo {
@@ -327,7 +330,7 @@ struct PluginInfo {
   string name;
   string author;
   std::vector<AvailCommands> commands;
-  bool listenToEvent[2];
+  bool listenToEvent[256];
 
   // INPUT-MODIFIER-WRITABLE VARIABLES //
   std::vector<Device*>* devices;

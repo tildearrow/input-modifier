@@ -130,20 +130,24 @@ int main(int argc, char** argv) {
   // initialize device listener
   list=new DeviceListener;
   if (!list->init()) {
-    imLogE("giving up.\n");
+    imLogE("couldn't initialize the device listener!\n");
     return 1;
   }
   // set signal handlers
   sintH.sa_handler=exitHandler;
-  sigaction(SIGINT,&sintH,NULL);
   stermH.sa_handler=exitHandler;
-  sigaction(SIGTERM,&stermH,NULL);
   ststpH.sa_handler=stopHandler;
-  sigaction(SIGTSTP,&ststpH,NULL);
   chldH.sa_handler=childHandler;
-  sigaction(SIGCHLD,&chldH,NULL);
   spipeH.sa_handler=pipeHandler;
-  sigaction(SIGPIPE,&spipeH,NULL);
+  
+  if (sigaction(SIGINT,&sintH,NULL)<0   ||
+      sigaction(SIGTERM,&stermH,NULL)<0 ||
+      sigaction(SIGTSTP,&ststpH,NULL)<0 ||
+      sigaction(SIGCHLD,&chldH,NULL)<0  ||
+      sigaction(SIGPIPE,&spipeH,NULL)<0) {
+    imLogE("failure to set signal handlers!\n");
+    return 1;
+  }
   // initialize interfaces
   if (!sock.init()) {
     return 1;

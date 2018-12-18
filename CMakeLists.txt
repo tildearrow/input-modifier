@@ -23,6 +23,7 @@ add_executable(imod-newcli
 src/cli/main.cpp)
 
 add_subdirectory(src/daemon/plugin/test)
+add_subdirectory(src/daemon/plugin/razer)
 
 target_link_libraries(imodd dl pthread)
 
