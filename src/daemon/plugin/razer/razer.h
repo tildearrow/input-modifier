@@ -12,11 +12,14 @@ class microBus {
   DBusError error;
   DBusMessage* msg;
   DBusMessageIter args;
-  DBusPendingCall* pending;
+  DBusPendingCall* reply;
   unsigned int replyIndex;
   string name;
+  bool errorInited;
   public:
     bool connect();
     bool requestName(string name);
-    bool call(string object, ...);
+    bool call(string who, string where, string what, string method, ...);
+    microBus(): conn(NULL), msg(NULL), reply(NULL), replyIndex(0), name(""), errorInited(false) {}
+    ~microBus();
 };

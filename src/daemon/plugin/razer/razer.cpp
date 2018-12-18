@@ -1,6 +1,7 @@
 #include "razer.h"
 
 PluginInfo pinfo;
+microBus dbus;
 
 IMOD_EXPORT PluginInfo* imodPluginGetInfo() {
   pinfo.name="OpenRazer integration";
@@ -12,6 +13,8 @@ IMOD_EXPORT PluginInfo* imodPluginGetInfo() {
 }
 
 IMOD_EXPORT bool imodPluginInit() {
+  if (!dbus.connect()) return false;
+  dbus.call("org.razer","/org/razer","razer.daemon","version");
   return true;
 }
 
