@@ -348,7 +348,6 @@ class LoadedPlugin {
     LoadedPlugin(): handle(NULL), info(NULL), getInfo(NULL), init(NULL), quit(NULL) {}
     ~LoadedPlugin() {
       if (handle!=NULL) dlclose(handle);
-      if (info!=NULL) delete info;
     }
 };
 
