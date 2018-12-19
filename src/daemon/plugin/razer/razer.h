@@ -12,7 +12,7 @@ class microBus {
   DBusError error;
   DBusMessage* msg;
   DBusMessageIter args;
-  DBusPendingCall* reply;
+  DBusMessage* reply;
   unsigned int replyIndex;
   string name;
   bool errorInited;
