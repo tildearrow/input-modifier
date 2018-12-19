@@ -5,14 +5,14 @@ echo "creating universal installer..."
 
 mkdir rel || exit 1
 { mkdir instbuild && cd instbuild; } || exit 1
-cmake -DCMAKE_C_FLAGS="-static -static-libgcc" -DCMAKE_CXX_FLAGS="-static -static-libstdc++ -static-libgcc" -DCMAKE_INSTALL_PREFIX=/opt/input-modifier .. || exit 1
+cmake -DCMAKE_C_FLAGS="-static-libgcc" -DCMAKE_CXX_FLAGS="-static-libstdc++ -static-libgcc" -DCMAKE_INSTALL_PREFIX=/opt/input-modifier .. || exit 1
 make -j4 || exit 1
 make DESTDIR=copy install || exit 1
 cd copy/opt || exit 1
 cp -v ../../../src/installer/uninstall input-modifier || exit 1
 echo "stripping program..."
-strip -s input-modifier/bin/imodd || exit 1
-strip -s input-modifier/bin/imod-cli || exit 1
+strip input-modifier/bin/imodd || exit 1
+strip input-modifier/bin/imod-cli || exit 1
 tar -cv --owner=root --group=root -f ../../../rel/installdata.tar input-modifier || exit 1
 cd ../../.. || exit 1
 cp -v src/installer/install rel/ || exit 1
