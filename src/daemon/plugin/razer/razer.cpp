@@ -14,7 +14,7 @@ IMOD_EXPORT PluginInfo* imodPluginGetInfo() {
 
 IMOD_EXPORT bool imodPluginInit() {
   if (!dbus.connect()) return false;
-  dbus.call("org.razer","/org/razer","razer.daemon","version");
+  dbus.call("org.razer","/org/razer","razer.daemon","version",3);
   return true;
 }
 

@@ -39,27 +39,7 @@ bool microBus::requestName(string name) {
   return true;
 }
 
-bool microBus::call(string who, string where, string what, string method, ...) {
-  va_list va;
-  msg=dbus_message_new_method_call(who.c_str(),where.c_str(),what.c_str(),method.c_str());
-  if (msg==NULL) {
-    imLogW("message for call %s is null!\n",method.c_str());
-    return false;
-  }
-
-  // TODO: arguments
-
-  reply=dbus_connection_send_with_reply_and_block(conn,msg,2000,&error);
-  dbus_message_unref(msg);
-  if (reply==NULL) {
-    imLogW("reply is null.\n");
-    return false;
-  }
-  
-  imLogI("success...\n");
-  dbus_message_unref(reply);
-  return true;
-}
+//template<typename... A> bool microBus::call(string who, string where, string what, string method, A&&... arg) 
 
 
 microBus::~microBus() {
