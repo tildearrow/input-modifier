@@ -10,6 +10,8 @@ uinput based key bindings and macros tool for Linux.
 
 ## universal installer
 
+download the installer from [here](https://github.com/tildearrow/input-modifier/releases) (select the first element from "Assets").
+
 extract release:
 
 ```
