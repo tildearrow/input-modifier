@@ -6,10 +6,10 @@ this is done by using a little utility called `imod-cli`, which is a command-lin
 
 (don't worry, a GUI will come at some point)
 
-to open up the utility, open a terminal, go to the input-modifier/bin directory and type the following:
+to open up the utility, open a terminal and type the following:
 
 ```
-./imod-cli
+imod-cli
 ```
 
 if you've done this correctly, you should be at the input-modifier prompt:
