@@ -31,6 +31,8 @@ add yourself to the `input` group if not done previously:
 sudo usermod -a -G input $USER
 ```
 
+and then re-login.
+
 # running
 
 run imodd:

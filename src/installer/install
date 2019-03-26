@@ -87,6 +87,7 @@ if [[ $RESPONSE =~ ^[yY].* ]]
          then echo "however, you will have to reboot before using input-modifier"
               echo "because we couldn't do some stuff required for it to work immediately."
        fi
-       echo "add yourself to the input group in order to be able to use the program:"
-       echo "sudo usermod -a -G input <username>"
+       echo "add yourself to the input group:"
+       echo "$ sudo usermod -a -G input <username>"
+       echo "then re-login (logout, then login) in order to be able to use the program."
 fi

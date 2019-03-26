@@ -43,6 +43,10 @@ you can add yourself to that group by typing the following:
 sudo usermod -a -G input $USER
 ```
 
+after this, you'll have to re-login before being able to use input-modifier, since new groups don't apply until you do this.
+
+under special circumstances, a reboot may be necessary.
+
 after this, you're ready to go. see [startup](startup.md).
 
 ## what about an AppImage?
