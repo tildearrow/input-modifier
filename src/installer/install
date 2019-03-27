@@ -6,6 +6,8 @@ INSEXTRAFAIL=0
 
 if [ -e /opt/input-modifier/bin/imodd ]
   then echo "input-modifier already installed."
+       echo "if you want to uninstall it, run as root:"
+       echo "# /opt/input-modifier/uninstall"
        exit 1
 fi
 
