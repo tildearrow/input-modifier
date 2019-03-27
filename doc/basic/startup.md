@@ -4,11 +4,10 @@ congratulations on installing input-modifier. here you will learn how to use it.
 
 ## start the daemon
 
-after you've extracted input-modifier, run the following:
+after you've installed input-modifier, run the following:
 
 ```
-cd input-modifier/bin
-./imodd
+imodd
 ```
 
 this will start the input-modifier daemon. if it fails, make sure you have installed it correctly. if that is the case, you may want to report an issue and I'll be glad to fix it as soon as you do.

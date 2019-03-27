@@ -1,4 +1,10 @@
-# installation
+# installation (distro-specific)
+
+## Arch Linux
+
+install [input-modifier](https://aur.archlinux.org/packages/input-modifier/). from the AUR (either manually or with your favorite helper).
+
+# installation (universal installer)
 
 after downloading input-modifier, please follow these instructions for a proper install.
 
@@ -37,11 +43,11 @@ you can add yourself to that group by typing the following:
 sudo usermod -a -G input $USER
 ```
 
+after this, you'll have to re-login before being able to use input-modifier, since new groups don't apply until you do this.
+
+under special circumstances, a reboot may be necessary.
+
 after this, you're ready to go. see [startup](startup.md).
-
-## why not a package?
-
-don't worry, this will eventually happen.
 
 ## what about an AppImage?
 

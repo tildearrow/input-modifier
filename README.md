@@ -4,6 +4,14 @@ uinput based key bindings and macros tool for Linux.
 
 # installation
 
+## Arch Linux
+
+[AUR](https://aur.archlinux.org/packages/input-modifier/).
+
+## universal installer
+
+download the installer from [here](https://github.com/tildearrow/input-modifier/releases) (select the first element from "Assets").
+
 extract release:
 
 ```
@@ -23,6 +31,8 @@ add yourself to the `input` group if not done previously:
 sudo usermod -a -G input $USER
 ```
 
+and then re-login.
+
 # running
 
 run imodd:
@@ -36,8 +46,6 @@ imodd
 documentation can be found [here](doc/README.md).
 
 # to-do
-
-this is pretty much unusable in a *real crazy* environment as of now, but otherwise it works.
 
 - X11 integration (per-application profile bind, warping cursor and the like).
 
