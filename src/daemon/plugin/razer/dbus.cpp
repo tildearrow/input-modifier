@@ -12,6 +12,42 @@
     imLogW(ONE ": %s...\n",error.message); \
     dbus_error_free(&error); \
   }
+  
+template<> bool microBus::addArg<int>(int a) {
+  return false;
+  if (!dbus_message_iter_append_basic(&args,DBUS_TYPE_INT32,&a)) { 
+    imLogW("couldn't append argument to D-Bus message...\n");
+    return false;
+  }
+  return true;
+}
+
+template<> bool microBus::addArg<short>(short a) {
+  return false;
+  if (!dbus_message_iter_append_basic(&args,DBUS_TYPE_INT16,&a)) { 
+    imLogW("couldn't append argument to D-Bus message...\n");
+    return false;
+  }
+  return true;
+}
+
+template<> bool microBus::addArg<string>(string a) {
+  return false;
+  if (!dbus_message_iter_append_basic(&args,DBUS_TYPE_STRING,(const void*)a.c_str())) { 
+    imLogW("couldn't append argument to D-Bus message...\n");
+    return false;
+  }
+  return true;
+}
+
+template<> bool microBus::addArg<const char*>(const char* a) {
+  return false;
+  if (!dbus_message_iter_append_basic(&args,DBUS_TYPE_STRING,(const void*)a)) { 
+    imLogW("couldn't append argument to D-Bus message...\n");
+    return false;
+  }
+  return true;
+}
 
 bool microBus::connect() {
   if (!errorInited) {

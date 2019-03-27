@@ -18,10 +18,7 @@ class microBus {
   bool errorInited;
   template<typename... A> inline void nothing(A&&...) {}
 
-  template<typename T> bool addArg(T a) {
-    imLogW("mistake: addArg with unusual type\n");
-    return true;
-  }
+  template<typename T> bool addArg(T a);
   
   public:
     bool connect();
