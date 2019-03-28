@@ -14,7 +14,7 @@ input-modifier comes in a universal binary package, besides some distribution-sp
 
 input-modifier doesn't run as root, to allow for multi-user support in the future.
 
-to install input-modifier, first extract the installer. open a terminal, and type the following:
+to install input-modifier, first extract the installer. and type the following in a terminal:
 
 ```
 tar -xvf <RELEASE>

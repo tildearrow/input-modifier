@@ -9,7 +9,7 @@ profiles are per-device, if you were wondering.
 to see your profiles for a device, type, e.g.:
 
 ```
-> listprofiles keyboard
+> listprofiles <device>
 ```
 
 at first you'll have a single profile called "Default".
@@ -19,7 +19,7 @@ at first you'll have a single profile called "Default".
 to create a new profile, type something like:
 
 ```
-> newprofile keyboard profile2
+> newprofile <device> profile2
 ```
 
 (note that profile names can't have spaces)
@@ -29,7 +29,7 @@ to create a new profile, type something like:
 now to switch to that profile type:
 
 ```
-> switchprofile keyboard profile2
+> switchprofile <device> profile2
 ```
 
 ## copying a profile
@@ -37,7 +37,7 @@ now to switch to that profile type:
 if you have an existing profile and you want to copy it to a new one, type something like:
 
 ```
-> copyprofile keyboard oldProfile newProfile
+> copyprofile <device> oldProfile newProfile
 ```
 
 ## deleting a profile
@@ -45,7 +45,7 @@ if you have an existing profile and you want to copy it to a new one, type somet
 if you want to get rid of a profile, you can do so:
 
 ```
-> delprofile keyboard profile2
+> delprofile <device> profile2
 ```
 
 but first make sure that's not the current profile.

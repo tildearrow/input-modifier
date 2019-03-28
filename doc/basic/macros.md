@@ -19,12 +19,12 @@ to create a macro, type:
 the easiest way to prepare a macro is to simply record to it. to do so:
 
 ```
-> recordmacro keyboard macro1
+> recordmacro <device> macro1
 ```
 
 (make sure you've created the macro first)
 
-this will begin recording from your keyboard.
+this will begin recording from your `<device>`. this means any keypresses in other devices won't be registered.
 
 to finish recording, press ESC.
 
@@ -33,7 +33,7 @@ to finish recording, press ESC.
 to assign your macro to a key (e.g. right control), do the following:
 
 ```
-> addaction keyboard KEY_RIGHTCTRL macro macro1
+> addaction <device> KEY_RIGHTCTRL macro macro1
 ```
 
 ## I made a mistake
