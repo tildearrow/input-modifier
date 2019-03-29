@@ -12,6 +12,8 @@ to create a macro, type:
 > newmacro macro1
 ```
 
+(`macro1` being the macro's name)
+
 (note that macro names can't have spaces)
 
 ## recording to a macro
@@ -19,12 +21,12 @@ to create a macro, type:
 the easiest way to prepare a macro is to simply record to it. to do so:
 
 ```
-> recordmacro keyboard macro1
+> recordmacro <device> macro1
 ```
 
 (make sure you've created the macro first)
 
-this will begin recording from your keyboard.
+this will begin recording from your `<device>`. this means any keypresses in other devices won't be registered.
 
 to finish recording, press ESC.
 
@@ -33,7 +35,7 @@ to finish recording, press ESC.
 to assign your macro to a key (e.g. right control), do the following:
 
 ```
-> addaction keyboard KEY_RIGHTCTRL macro macro1
+> addaction <device> KEY_RIGHTCTRL macro macro1
 ```
 
 ## I made a mistake
@@ -106,4 +108,4 @@ then look at the action index you want to delete, and then type:
 
 (the ability to edit actions in-place is coming soon)
 
-next page is [profiles](profiles.md).
+next page is [profiles](6-profiles.md).
