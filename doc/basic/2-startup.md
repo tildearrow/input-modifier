@@ -18,7 +18,7 @@ if you see the following:
 [info] done! running.
 ```
 
-then it means you've done everything correctly. let's move on to [devices](devices.md).
+then it means you've done everything correctly. let's move on to [devices](3-devices.md).
 
 ## but wait. what about autostart?
 
