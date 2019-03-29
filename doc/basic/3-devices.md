@@ -6,7 +6,7 @@ this is done by using a little utility called `imod-cli`, which is a command-lin
 
 (don't worry, a GUI will come at some point)
 
-to open up the utility, type the following in a terminal:
+to open up the utility, type the following in a new terminal (because the terminal you used to start up input-modifier is now occupied):
 
 ```
 imod-cli
@@ -79,7 +79,7 @@ for example:
 > disable keyboard
 ```
 
-following is [keybinds](keybinds.md). the moment you've been waiting for.
+following is [keybinds](4-keybinds.md). the moment you've been waiting for.
 
 ## device name notes
 

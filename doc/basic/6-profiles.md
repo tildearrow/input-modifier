@@ -22,6 +22,8 @@ to create a new profile, type something like:
 > newprofile <device> profile2
 ```
 
+(`profile2` being the profile's name)
+
 (note that profile names can't have spaces)
 
 ## switching to that profile

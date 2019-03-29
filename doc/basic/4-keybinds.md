@@ -16,7 +16,7 @@ to do that, type the following:
 > addaction <device> KEY_TAB key KEY_A
 ```
 
-(replace `<device>` with your device's name; see [devices](devices.md) for notes)
+(replace `<device>` with your device's name; see [devices](3-devices.md) for notes)
 
 (if you're wondering what the key names are, see the following: [input-event-codes.h](https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h))
 
@@ -103,4 +103,4 @@ there are more actions available, but they aren't listed here. once you hit the 
 
 alternatively, check out the [addaction reference](../reference/command/addaction.md).
 
-now, let's look at [macros](macros.md).
+now, let's look at [macros](5-macros.md).

@@ -12,6 +12,8 @@ to create a macro, type:
 > newmacro macro1
 ```
 
+(`macro1` being the macro's name)
+
 (note that macro names can't have spaces)
 
 ## recording to a macro
@@ -106,4 +108,4 @@ then look at the action index you want to delete, and then type:
 
 (the ability to edit actions in-place is coming soon)
 
-next page is [profiles](profiles.md).
+next page is [profiles](6-profiles.md).

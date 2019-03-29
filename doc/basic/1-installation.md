@@ -6,6 +6,8 @@ install [input-modifier](https://aur.archlinux.org/packages/input-modifier/). fr
 
 # installation (universal installer)
 
+download the installer from [here](https://github.com/tildearrow/input-modifier/releases) (don't download the source code versions!).
+
 after downloading input-modifier, please follow these instructions for a proper install.
 
 ## extracting
@@ -47,7 +49,7 @@ after this, you'll have to re-login before being able to use input-modifier, sin
 
 under special circumstances, a reboot may be necessary.
 
-after this, you're ready to go. see [startup](startup.md).
+after this, you're ready to go. see [startup](2-startup.md).
 
 ## what about an AppImage?
 
