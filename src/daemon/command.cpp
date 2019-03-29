@@ -8,11 +8,14 @@ extern string configDir;
 
 size_t findByName(int output, string name) {
   string lowercase;
+  string lowername;
   int ip=0;
+  lowername=name;
+  transform(lowername.begin(),lowername.end(),lowername.begin(),::tolower);
   for (auto& i: dev) {
     lowercase=i->getName();
     transform(lowercase.begin(),lowercase.end(),lowercase.begin(),::tolower);
-    if (lowercase.find(name)!=string::npos) {
+    if (lowercase.find(lowername)!=string::npos) {
       dprintf(output,"using device %s.\n",i->getName().c_str());
       return ip;
     }
