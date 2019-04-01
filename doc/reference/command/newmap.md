@@ -15,7 +15,7 @@ two maps can't have the same name.
 ## example(s)
 
 ```
-newmap 0 Secondary
+newmap keyboard Secondary
 ```
 
 this creates a new mapping called "Secondary".

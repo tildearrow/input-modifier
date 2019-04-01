@@ -15,7 +15,7 @@ if no keymap is specified, the current keymap is assumed.
 NOTE: to-do.
 
 ```
-listactions 0 KEY_TAB
+listactions keyboard KEY_TAB
 ```
 
 this lists actions which the tab key will perform.

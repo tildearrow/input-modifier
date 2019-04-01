@@ -11,7 +11,7 @@ switchmap <device> <name>
 ## example(s)
 
 ```
-switchmap 0 Secondary
+switchmap keyboard Secondary
 ```
 
 this switches to the "Secondary" mapping.

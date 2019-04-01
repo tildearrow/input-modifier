@@ -11,7 +11,7 @@ listmaps <device>
 ## example(s)
 
 ```
-> listmaps 0
+> listmaps keyboard
 0: Default
 1: Secondary
 Ready.
