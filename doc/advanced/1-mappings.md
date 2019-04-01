@@ -2,6 +2,15 @@
 
 input-modifier is also capable of having multiple "mappings" for a profile, with the ability to switch them on the fly.
 
+## but there are profiles
+
+yes, I know, but there are differences:
+
+- profiles contain, besides mappings, device/integration settings.
+- a profile has to be loaded from files, while mappings are already loaded and switchable on the fly.
+
+furthermore, every single other tool in Windows land I've seen (especially for keypads) have both mappings and profiles.
+
 ## listing mappings
 
 to see mappings for a device, type, e.g.:
