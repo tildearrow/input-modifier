@@ -921,7 +921,7 @@ Command(cmd_listprofiles) {
   while ((subject=readdir(listDir))!=NULL) {
     if (strstr(subject->d_name,".json")!=NULL) {
       printable=subject->d_name;
-      printable.replace(printable.find_first_of(".json"),5,"");
+      printable.resize(printable.size()-5);
       dprintf(output,"- %s\n",printable.c_str());
     }
   }
