@@ -762,7 +762,54 @@ Command(cmd_listbinds) {
   dprintf(output,"bound keys:\n");
   for (int i=0; i<KEY_CNT; i++) {
     if (mapOp->keybinds[i].doModify) {
-      dprintf(output,"- %s\n",keynames[i]);
+      dprintf(output,"- %s -> ",keynames[i]);
+      if (mapOp->keybinds[i].actions.size()>1) {
+        dprintf(output,"(many actions)\n");
+      } else {
+        switch (mapOp->keybinds[i].actions[0].type) {
+          case actKey:
+            dprintf(output,"%s\n",keynames[mapOp->keybinds[i].actions[0].code]);
+            break;
+          case actTurbo:
+            dprintf(output,"turbo %s\n",keynames[mapOp->keybinds[i].actions[0].code]);
+            break;
+          case actRel:
+            dprintf(output,"%s (%d)\n",relnames[mapOp->keybinds[i].actions[0].code],mapOp->keybinds[i].actions[0].value);
+            break;
+          case actRelConst:
+            dprintf(output,"repeat %s (%d)\n",relnames[mapOp->keybinds[i].actions[0].code],mapOp->keybinds[i].actions[0].value);
+            break;
+          case actAbs:
+            dprintf(output,"%s (%d)\n",absnames[mapOp->keybinds[i].actions[0].code],mapOp->keybinds[i].actions[0].value);
+            break;
+          case actExecute:
+            dprintf(output,"%s\n",mapOp->keybinds[i].actions[0].command.c_str());
+            for (auto& j: mapOp->keybinds[i].actions[0].args) {
+              dprintf(output," %s",j.c_str());
+            }
+            dprintf(output,"\n");
+            break;
+          case actSwitchMap:
+            dprintf(output,"switch to mapping %s\n",mapOp->keybinds[i].actions[0].command.c_str());
+            break;
+          case actShiftMap:
+            dprintf(output,"shift mapping %s\n",mapOp->keybinds[i].actions[0].command.c_str());
+            break;
+          case actDisable:
+            dprintf(output,"disabled\n");
+            break;
+          case actWait:
+            dprintf(output,"wait %ss\n",tstos(mapOp->keybinds[i].actions[0].timeOn).c_str());
+            break;
+          case actMouseMove:
+            dprintf(output,"mouse movement\n");
+            break;
+          case actMacro:
+            dprintf(output,"macro %s\n",mapOp->keybinds[i].actions[0].command.c_str());
+            break;
+        }
+        break;
+      }
     }
   }
 
