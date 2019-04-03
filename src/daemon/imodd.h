@@ -38,7 +38,7 @@ typedef std::string string;
 
 #define logLevel 2
 
-#define IMOD_VERSION "1.3.1"
+#define IMOD_VERSION "1.4-pre"
 
 #ifdef _WIN32
 #define IMOD_EXPORT __declspec(dllexport)
