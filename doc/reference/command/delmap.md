@@ -15,7 +15,7 @@ this command will fail if you only have a single mapping and you try to delete i
 ## example(s)
 
 ```
-delmap 0 Secondary
+delmap keyboard Secondary
 ```
 
 this deletes the "Secondary" mapping.

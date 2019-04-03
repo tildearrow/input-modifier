@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
   struct sigaction sintH, stermH, ststpH, chldH, spipeH;
   int tempuifd;
   struct stat uistat;
+  imLogI("input-modifier v" IMOD_VERSION "\n");
   memset(&sintH,0,sizeof(struct sigaction));
   memset(&stermH,0,sizeof(struct sigaction));
   memset(&ststpH,0,sizeof(struct sigaction));

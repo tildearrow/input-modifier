@@ -15,5 +15,5 @@ enabling might fail in certain situations. if this is the case, feel free to rep
 ## examples
 
 ```
-enable 0
+enable keypad
 ```

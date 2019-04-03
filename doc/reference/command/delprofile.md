@@ -15,7 +15,7 @@ you can't delete the current profile.
 ## example(s)
 
 ```
-delprofile 0 Secondary
+delprofile keyboard Secondary
 ```
 
 this deletes the "Secondary" profile.

@@ -1,5 +1,6 @@
 #include "imodd.h"
 #include <fstream>
+#include <iomanip>
 #include "../json/json.hpp"
 
 #define ACTION_NAMES_SIZE 12
@@ -185,7 +186,7 @@ bool Device::saveProfile(string path, string dirpath) {
   
   f.open(path);
   if (f.is_open()) {
-    f<<data;
+    f<<std::setw(2)<<data;
   } else {
     imLogE("couldn't save profile: %s\n",strerror(errno));
     return false;

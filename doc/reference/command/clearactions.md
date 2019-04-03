@@ -13,7 +13,7 @@ if no keymap is specified, the current keymap is altered.
 ## examples
 
 ```
-clearactions 0 KEY_TAB
+clearactions keyboard KEY_TAB
 ```
 
 this removes the actions assigned to the tab key.

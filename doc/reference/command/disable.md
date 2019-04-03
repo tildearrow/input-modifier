@@ -11,5 +11,5 @@ disable <device>
 ## examples
 
 ```
-disable 0
+disable keypad
 ```

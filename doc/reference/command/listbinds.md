@@ -13,7 +13,7 @@ if no keymap is specified, the current keymap is assumed.
 ## example(s)
 
 ```
-> listbinds 0
+> listbinds keyboard
 - KEY_TAB
 - KEY_RIGHTCTRL
 Ready.
@@ -22,7 +22,7 @@ Ready.
 this lists events with actions on the current mapping.
 
 ```
-> listbinds 0 Secondary
+> listbinds keypad Secondary
 - KEY_1
 - KEY_2
 - KEY_3
