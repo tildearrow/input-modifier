@@ -112,6 +112,8 @@ int scanAndLoadPlugins(std::vector<LoadedPlugin*>& populate) {
       delete p;
       continue;
     }
+    // register comamnds
+    plugCmds.insert(plugCmds.end(),p->info->commands.begin(),p->info->commands.end());
     populate.push_back(p);
   }
   

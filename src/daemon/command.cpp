@@ -1470,3 +1470,5 @@ const AvailCommands cmds[]={
   {"version", cmd_version},
   {NULL, NULL}
 };
+
+std::vector<AvailCommands> plugCmds;

@@ -77,11 +77,21 @@ void* clientThread(void* cli) {
       imLogD("- %s\n",i.c_str());
     }
     haveNotFound=true;
+    // built-in commands
     for (int i=0; cmds[i].n!=NULL; i++) {
       if (strcmp((*pargs)[0].c_str(),cmds[i].n)==0) {
         cmds[i].c(client->fd,pargs);
         haveNotFound=false;
         break;
+      }
+    }
+    if (haveNotFound) {
+      for (auto& i: plugCmds) {
+        if (strcmp((*pargs)[0].c_str(),i.n)==0) {
+          i.c(client->fd,pargs);
+          haveNotFound=false;
+          break;
+       }
       }
     }
     delete pargs;

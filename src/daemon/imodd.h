@@ -104,9 +104,11 @@ enum ActionType {
 struct AvailCommands {
   const char* n;
   int (*c)(int,std::vector<string>*);
+  AvailCommands(const char* name, int (*func)(int,std::vector<string>*)): n(name), c(func) {}
 };
 
 extern const AvailCommands cmds[];
+extern std::vector<AvailCommands> plugCmds;
 
 struct Action {
   ActionType type;
