@@ -3,8 +3,12 @@
 PluginInfo pinfo;
 microBus dbus;
 
-Command(myCommand) {
-  dprintf(output,"hello world!\n");
+Command(cmdDBusTest) {
+  if (args->size()<5) {
+    dprintf(output,"usage: dbus-test bus path interface method\n");
+    return 1;
+  }
+  dbus.call((*args)[1],(*args)[2],(*args)[3],(*args)[4]);
   return 0;
 }
 
@@ -15,7 +19,7 @@ IMOD_EXPORT PluginInfo* imodPluginGetInfo() {
   pinfo.listenToEvent[plugInputEvent]=false;
   pinfo.listenToEvent[plugDevicePlugEvent]=false;
   
-  pinfo.commands.push_back(AvailCommands("hello",myCommand));
+  pinfo.commands.push_back(AvailCommands("dbus-test",cmdDBusTest));
   return &pinfo;
 }
 
