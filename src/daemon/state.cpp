@@ -31,7 +31,12 @@ bool Device::loadProfile(string path) {
   f.open(path);
   
   if (f.is_open()) {
-    f>>data;
+    try {
+      f>>data;
+    } catch (nlohmann::detail::parse_error& e) {
+      imLogE("error while loading profile: %s\n",e.what());
+      return false;
+    }
   } else {
     return false;
   }
