@@ -208,7 +208,12 @@ bool Device::loadState(string path) {
   f.open(path+S(".json"));
   
   if (f.is_open()) {
-    f>>data;
+    try {
+      f>>data;
+    } catch (nlohmann::detail::parse_error& e) {
+      imLogE("error while loading device state: %s\n",e.what());
+      return false;
+    }
   } else {
     // load default state...
     mappings.push_back(new bindSet("Default"));
@@ -273,7 +278,12 @@ bool loadMacros(string path) {
   f.open(path);
   
   if (f.is_open()) {
-    f>>data;
+    try {
+      f>>data;
+    } catch (nlohmann::detail::parse_error& e) {
+      imLogE("error while loading macros: %s\n",e.what());
+      return false;
+    }
   } else {
     imLogI("macros will be saved.\n");
     return false;
